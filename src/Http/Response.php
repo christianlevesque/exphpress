@@ -1,6 +1,6 @@
 <?php
 
-namespace Exphpress\Http;
+namespace Crossview\Exphpress\Http;
 
 class Response
 {
@@ -74,8 +74,9 @@ class Response
 	 *
 	 * @param string $domain The domain of the current application, used to set the 'domain' option of application cookies
 	 */
-	public function __construct(string $domain)
+	public function __construct( string $domain )
 	{
+		// TODO: Allow configuration of the defaults found here
 		$this->responseCode  = 200;
 		$this->responseBody  = "";
 		$this->headers       = [];
@@ -83,7 +84,7 @@ class Response
 		$this->cookieOptions = [
 			'expires'  => time() + 60 * 60 * 24,
 			'path'     => '/',
-			'domain'   => DOMAIN,
+			'domain'   => $domain,
 			'secure'   => true,
 			'httponly' => true,
 			'samesite' => 'lax'
@@ -99,7 +100,7 @@ class Response
 	 *
 	 * @return $this Returns the instance of the Response object (to enable method chaining)
 	 */
-	public function setResponseCode( $code )
+	public function setResponseCode( int $code ): Response
 	{
 		$this->responseCode = $code;
 
@@ -113,9 +114,9 @@ class Response
 	 *
 	 * @param int $code The HTTP Status Code
 	 *
-	 * @return $this Returns the instance of the Response object (to enable method chaining)
+	 * @return Response
 	 */
-	public function status( $code )
+	public function status( int $code ): Response
 	{
 		return $this->setResponseCode( $code );
 	}
@@ -126,10 +127,14 @@ class Response
 	 * The response body is not directly sent by this method. A different method will send the response body after processing header and cookie queues.
 	 *
 	 * @param string $body The value to be sent as the response body
+	 *
+	 * @return Response
 	 */
-	public function setResponseBody( $body )
+	public function setResponseBody( string $body ): Response
 	{
-		$this->responseBody = (string) $body;
+		$this->responseBody = $body;
+
+		return $this;
 	}
 
 	/**
@@ -138,10 +143,14 @@ class Response
 	 * The response body is not directly sent by this method. A different method will send the response body after processing header and cookie queues.
 	 *
 	 * @param string $partial The value to be appended to the existing response body
+	 *
+	 * @return Response
 	 */
-	public function appendToResponseBody( $partial )
+	public function appendToResponseBody( string $partial ): Response
 	{
-		$this->responseBody .= (string) $partial;
+		$this->responseBody .= $partial;
+
+		return $this;
 	}
 
 	/**
@@ -152,9 +161,9 @@ class Response
 	 * @param string $name The name of the header to be set
 	 * @param mixed $value The value of the header to be set
 	 *
-	 * @return $this Returns the instance of the Response object (to enable method chaining)
+	 * @return Response Returns the instance of the Response object (to enable method chaining)
 	 */
-	public function setHeader( $name, $value )
+	public function setHeader( string $name, $value ): Response
 	{
 		$this->headers[ $name ] = $value;
 
@@ -168,13 +177,15 @@ class Response
 	 *
 	 * @param string $name The name of the cookie to be set
 	 * @param mixed $value The value of the cookie to be set
-	 * @param array|bool $options (optional) The options for the cookie to be set
+	 * @param array $options (optional) The options for the cookie to be set
 	 *
-	 * @return $this Returns the instance of the Response object (to enable method chaining)
+	 * @return Response
 	 */
-	public function setCookie( $name, $value, $options = false )
+	public function setCookie( string $name, $value, $options = null ): Response
 	{
-		$parsedOptions          = $options ? array_merge( $this->cookieOptions, $options ) : $this->cookieOptions;
+		$parsedOptions          = $options
+			? array_merge( $this->cookieOptions, $options )
+			: $this->cookieOptions;
 		$this->cookies[ $name ] = [
 			'value'   => $value,
 			'options' => $parsedOptions
@@ -189,46 +200,51 @@ class Response
 	 * This method is merely a wrapper around Response::setCookie() (because PHP cookies are set and unset in the same way). It merges the standard default options with user-defined options, and also merges with an array that sets the 'expires' value to 1 (this is a Unix timestamp, so 1 refers to 1 Jan 1970 at 00:00:01)
 	 *
 	 * @param string $name The name of the cookie to be deleted
-	 * @param array|bool $options (optional) The options for the cookie to be deleted. These must be the same as the options used to set the cookie, or else the cookie will not be deleted.
+	 * @param array $options (optional) The options for the cookie to be deleted. These must be the same as the options used to set the cookie, or else the cookie will not be deleted.
 	 *
-	 * @return $this Returns the instance of the Response object (to enable method chaining)
+	 * @return Response
 	 */
-	public function unsetCookie( $name, $options = false )
+	public function unsetCookie( string $name, $options = null ): Response
 	{
 		$expiredTime   = [ 'expires' => 1 ];
-		$deleteOptions = $options ? array_merge(
-			$this->cookieOptions, $options, $expiredTime
-		) : array_merge( $this->cookieOptions, $expiredTime );
+		$deleteOptions = $options
+			? array_merge( $this->cookieOptions, $options, $expiredTime )
+			: array_merge( $this->cookieOptions, $expiredTime );
 		$this->setCookie( $name, '', $deleteOptions );
 
 		return $this;
 	}
 
-	private function sendHttpStatus()
+	public function sendHttpStatus()
 	{
 		http_response_code( $this->getResponseCode() );
 	}
 
-	private function sendHeaders()
+	public function sendHeaders()
 	{
-		foreach ( $this->getHeaders() as $name => $value ) {
+		foreach ( $this->getHeaders() as $name => $value )
+		{
 			header( "$name: $value" );
 		}
 	}
 
-	private function sendCookies()
+	public function sendCookies()
 	{
-		foreach ( $this->getCookies() as $name => $cookie ) {
+		foreach ( $this->getCookies() as $name => $cookie )
+		{
 			setcookie( $name, $cookie[ 'value' ], $cookie[ 'options' ] );
 		}
 	}
 
 	public function send( $body = '', $replaceBody = false )
 	{
-		if ( $replaceBody ) {
+		if ( $replaceBody )
+		{
 			$this->setResponseBody( $body );
-		} else {
-			if ( !empty( $body ) ) {
+		} else
+		{
+			if ( !empty( $body ) )
+			{
 				$this->appendToResponseBody( $body );
 			}
 		}

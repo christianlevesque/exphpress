@@ -1,6 +1,6 @@
 <?php
 
-namespace Exphpress;
+namespace Crossview\Exphpress;
 
 class Route
 {

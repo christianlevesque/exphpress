@@ -1,6 +1,6 @@
 <?php
 
-namespace Exphpress;
+namespace Crossview\Exphpress;
 
 class Router
 {
@@ -8,7 +8,6 @@ class Router
 	private static array $routes       = [];
 	private static       $matchedRoute = null;
 	private static       $parameters   = null;
-	private static       $instance     = null;
 
 	/**
 	 * Router constructor
@@ -24,7 +23,7 @@ class Router
 	 *
 	 * @param string $uri The URI to match for registering route handlers
 	 *
-	 * @return \Exphpress\Route Returns the Route object represented by the passed $uri, or a new Route object if no matching Route exists
+	 * @return Route Returns the Route object represented by the passed $uri, or a new Route object if no matching Route exists
 	 *
 	 * @throws \Exception @see Route::verifyHandlers()
 	 */

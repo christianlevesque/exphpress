@@ -1,6 +1,6 @@
 <?php
 
-namespace Exphpress\Http;
+namespace Crossview\Exphpress\Http;
 
 class Request
 {
@@ -15,8 +15,7 @@ class Request
 	public array $cookies;
 
 	/**
-	 * @var array An array of matched URI parameters, set by the Router class. If no URI parameters were matched, will
-	 *      be empty.
+	 * @var array An array of matched URI parameters, set by the Router class. If no URI parameters were matched, will be empty.
 	 */
 	public array $parameters;
 
@@ -46,7 +45,8 @@ class Request
 	 */
 	public function getParameter( string $parameter )
 	{
-		if ( isset( $this->parameters[ $parameter ] ) ) {
+		if ( isset( $this->parameters[ $parameter ] ) )
+		{
 			return $this->parameters[ $parameter ];
 		}
 
@@ -62,7 +62,8 @@ class Request
 	 */
 	public function getRequestParameter( string $parameter )
 	{
-		if ( isset( $this->requestParameters[ $parameter ] ) ) {
+		if ( isset( $this->requestParameters[ $parameter ] ) )
+		{
 			return $this->requestParameters[ $parameter ];
 		}
 
@@ -78,7 +79,8 @@ class Request
 	 */
 	public function getCookie( string $name ): ?string
 	{
-		if ( isset( $this->cookies[ $name ] ) ) {
+		if ( isset( $this->cookies[ $name ] ) )
+		{
 			return $this->cookies[ $name ];
 		}
 
