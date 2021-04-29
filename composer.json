@@ -1,0 +1,24 @@
+{
+    "name": "crossview/exphpress",
+    "description": "A slim port of the Express.js library to PHP",
+    "type": "library",
+    "license": "MIT",
+	"scripts": {
+		"test": "./vendor/bin/phpunit tests"
+	},
+    "authors": [
+        {
+            "name": "Christian LeVesque",
+            "email": "christian@christianlevesque.io",
+			"homepage": "https://www.christianlevesque.io"
+        }
+    ],
+    "require-dev": {
+        "phpunit/phpunit": "^9"
+    },
+	"autoload": {
+		"psr-4": {
+			"Exphpress\\": "src/"
+		}
+	}
+}
