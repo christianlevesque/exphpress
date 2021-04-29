@@ -3,6 +3,9 @@
     "description": "A slim port of the Express.js library to PHP",
     "type": "library",
     "license": "MIT",
+	"scripts": {
+		"test": "./vendor/bin/phpunit tests"
+	},
     "authors": [
         {
             "name": "Christian LeVesque",
