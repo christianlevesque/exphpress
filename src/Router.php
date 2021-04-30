@@ -2,6 +2,9 @@
 
 namespace Crossview\Exphpress;
 
+use Crossview\Exphpress\Http\Request;
+use Crossview\Exphpress\Http\Response;
+
 class Router
 {
 	private array $uri        = [];
@@ -160,8 +163,11 @@ class Router
 	 * Public method to execute Route matches
 	 *
 	 * Calls all private methods used to match a Route to the request URI.
+	 *
+	 * @param Request  $request
+	 * @param Response $response
 	 */
-	public function executeRouteMatch()
+	public function executeRouteMatch(Request $request, Response $response)
 	{
 		$this->uri = $this->explodeRoute( $_SERVER[ 'REQUEST_URI' ] );
 
@@ -180,5 +186,8 @@ class Router
 				break;
 			}
 		}
+
+		if ($this->matchedRoute !== null)
+			$this->matchedRoute->executehandler($request, $response);
 	}
 }
