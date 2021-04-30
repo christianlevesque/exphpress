@@ -14,5 +14,5 @@ interface MiddlewareInterface
 	 * @param Closure|null $next     The next middleware in the pipeline wrapped in a Closure if it exists, null otherwise
 	 * @return void
 	 */
-	function handle( Request $request, Response $response, Closure $next = null );
+	public function handle( Request $request, Response $response, Closure $next = null );
 }
