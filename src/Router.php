@@ -6,10 +6,10 @@ use \Exception;
 
 class Router
 {
-	private static array $uri        = [];
-	private static array $routes     = [];
-	private static array $parameters = [];
-	private static Route $matchedRoute;
+	private array $uri        = [];
+	private array $routes     = [];
+	private array $parameters = [];
+	private Route $matchedRoute;
 
 	/**
 	 * Router constructor
@@ -29,9 +29,9 @@ class Router
 	 *
 	 * @throws Exception @see Route::verifyHandlers()
 	 */
-	public static function route( string $uri ): Route
+	public function route( string $uri ): Route
 	{
-		foreach ( self::$routes as $route )
+		foreach ( $this->routes as $route )
 		{
 			if ( $uri == (string) $route )
 			{
@@ -39,9 +39,9 @@ class Router
 			}
 		}
 
-		$routesLength = array_push( self::$routes, new Route( $uri ) );
+		$routesLength = array_push( $this->routes, new Route( $uri ) );
 
-		return self::$routes[ $routesLength - 1 ];
+		return $this->routes[ $routesLength - 1 ];
 	}
 
 	/**
@@ -49,9 +49,9 @@ class Router
 	 *
 	 * @return Route|null Returns the Route matching the current request's URI, or null if no Route has been matched
 	 */
-	public static function getMatchedRoute(): Route
+	public function getMatchedRoute(): Route
 	{
-		return self::$matchedRoute;
+		return $this->matchedRoute;
 	}
 
 	/**
@@ -59,9 +59,9 @@ class Router
 	 *
 	 * @return array Returns an associative array of the parameter values for the current request as parameter => value pairs. If no parameters exist on the current request, or if no route has yet been matched, an empty array will be returned.
 	 */
-	public static function getParameters(): array
+	public function getParameters(): array
 	{
-		return self::$parameters;
+		return $this->parameters;
 	}
 
 	/**
@@ -73,7 +73,7 @@ class Router
 	 *
 	 * @return array Returns the exploded URI. If the Route or requested URI is for the home directory ('/'), the array will be empty
 	 */
-	private static function explodeRoute( string $uri ): array
+	private function explodeRoute( string $uri ): array
 	{
 		$hasQuestionMark = strpos( $uri, '?' );
 
@@ -115,7 +115,7 @@ class Router
 	 *
 	 * @return array|bool Returns an array containing any parameters matched by the URI. If no parameters were matched but the URI and Route match, the array will be empty. If the URI and Route don't match, returns false.
 	 */
-	private static function matchRoute( $route, $uri )
+	private function matchRoute( $route, $uri )
 	{
 		$parameters  = [];
 		$routeLength = count( $route );
@@ -165,20 +165,20 @@ class Router
 	 *
 	 * Calls all private methods used to match a Route to the request URI.
 	 */
-	public static function executeRouteMatch()
+	public  function executeRouteMatch()
 	{
-		self::$uri = self::explodeRoute( $_SERVER[ 'REQUEST_URI' ] );
+		$this->uri = $this->explodeRoute( $_SERVER[ 'REQUEST_URI' ] );
 
-		foreach ( self::$routes as $route )
+		foreach ( $this->routes as $route )
 		{
-			$explodedRoute = self::explodeRoute( (string) $route );
-			$parameters    = self::matchRoute( $explodedRoute, self::$uri );
+			$explodedRoute = $this->explodeRoute( (string) $route );
+			$parameters    = $this->matchRoute( $explodedRoute, $this->uri );
 
 			// if a route doesn't match, $parameters will be false. if it does, $parameters will be an array containing any matched parameters in the URI, so go ahead and save data and break out of the loop if $parameters isn't explicitly false
 			if ( $parameters !== false )
 			{
-				self::$matchedRoute = $route;
-				self::$parameters   = !empty( $parameters )
+				$this->matchedRoute = $route;
+				$this->parameters   = !empty( $parameters )
 					? $parameters
 					: [];
 				break;

@@ -2,17 +2,22 @@
 
 namespace Crossview\Exphpress;
 
+use \Exception;
+use Crossview\Exphpress\Exceptions\ExphpressException;
+use Crossview\Exphpress\Http\Request;
+use Crossview\Exphpress\Http\Response;
+
 class Route
 {
 	/**
 	 * @var string The URI this Route represents
 	 */
-	private $route;
+	private string $route;
 
 	/**
 	 * @var array An associative array representing HTTP method callback pairs
 	 */
-	private $handlers;
+	private array $handlers;
 
 	/**
 	 * Route constructor.
@@ -43,7 +48,7 @@ class Route
 	 *
 	 * @return string The value of the $route field
 	 */
-	public function __toString()
+	public function __toString(): string
 	{
 		return $this->route;
 	}
@@ -60,7 +65,7 @@ class Route
 	 * @param $arguments
 	 *
 	 * @return Route
-	 * @throws AppException
+	 * @throws ExphpressException
 	 */
 	public function __call( $verb, $arguments )
 	{
@@ -82,9 +87,9 @@ class Route
 	 *                                               suppressed and the existing callback is overwritten. If not set,
 	 *                                               defaults to false
 	 *
-	 * @throws AppException if HTTP method is not a string
-	 * @throws AppException if provided callback is not callable
-	 * @throws AppException if HTTP method already has a valid callback; this can be suppressed by setting the optional
+	 * @throws ExphpressException if HTTP method is not a string
+	 * @throws ExphpressException if provided callback is not callable
+	 * @throws ExphpressException if HTTP method already has a valid callback; this can be suppressed by setting the optional
 	 *                   $suppressDuplicateKeyException to true
 	 */
 	private function verifyHandlers( $handlers, $suppressDuplicateKeyException = false )
@@ -92,26 +97,13 @@ class Route
 		foreach ( $handlers as $method => $callback )
 		{
 			if ( !is_string( $method ) )
-				throw new AppException(
-					"The HTTP Method provided to the route '{$this->route}' must be a string; '" . gettype(
-						$method
-					) . "' provided",
-					500
-				);
+				throw new ExphpressException( "The HTTP Method provided to the route '{$this->route}' must be a string; '" . gettype($method) . "' provided" );
 
 			if ( !is_callable( $callback ) )
-				throw new AppException(
-					"The callback provided to the route '{$this->route}' {$method} HTTP method must be a function; '" . gettype(
-						$callback
-					) . "' provided",
-					500
-				);
+				throw new ExphpressException( "The callback provided to the route '{$this->route}' {$method} HTTP method must be a function; '" . gettype( $callback ) . "' provided" );
 
 			if ( !$suppressDuplicateKeyException && isset( $this->handlers[ $method ] ) )
-				throw new AppException(
-					"The HTTP Request Method '{$method}' in the route '{$this->route}' already has a callback assigned",
-					500
-				);
+				throw new ExphpressException( "The HTTP Request Method '{$method}' in the route '{$this->route}' already has a callback assigned" );
 
 		}
 	}
@@ -119,9 +111,9 @@ class Route
 	/**
 	 * Gets the complete list of route handlers
 	 *
-	 * @return array The list of route handlers as an associative array of HTTP verb => handler pairs
+	 * @return Route[] The list of route handlers as an associative array of HTTP verb => handler pairs
 	 */
-	public function getHandlers()
+	public function getHandlers(): array
 	{
 		return $this->handlers;
 	}
@@ -135,9 +127,9 @@ class Route
 	 * @param callable $callback The callback used to respond to the route via a given HTTP verb
 	 *
 	 * @return $this Returns the instance of the Route object (to enable method chaining)
-	 * @throws AppException @see Route::verifyHandlers()
+	 * @throws ExphpressException @see Route::verifyHandlers()
 	 */
-	private function addHandler( $method, $callback )
+	private function addHandler( string $method, callable $callback ): Route
 	{
 		$handler = array( $method => $callback );
 		$this->verifyHandlers( $handler );
@@ -179,6 +171,5 @@ class Route
 					 ->setHeader( 'Allow', $allowValue )
 					 ->send();
 		}
-
 	}
 }
