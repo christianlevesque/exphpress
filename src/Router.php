@@ -180,7 +180,7 @@ class Router
 				self::$matchedRoute = $route;
 				self::$parameters   = !empty( $parameters )
 					? $parameters
-					: null;
+					: [];
 				break;
 			}
 		}
