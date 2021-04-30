@@ -167,7 +167,7 @@ class Router
 	 * @param Request  $request
 	 * @param Response $response
 	 */
-	public function executeRouteMatch(Request $request, Response $response)
+	public function executeRouteMatch( Request $request, Response $response )
 	{
 		$this->uri = $this->explodeRoute( $_SERVER[ 'REQUEST_URI' ] );
 
@@ -187,7 +187,9 @@ class Router
 			}
 		}
 
-		if ($this->matchedRoute !== null)
-			$this->matchedRoute->executehandler($request, $response);
+		if ( isset( $this->matchedRoute ) )
+		{
+			$this->matchedRoute->executehandler( $request, $response );
+		}
 	}
 }
