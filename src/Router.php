@@ -111,11 +111,11 @@ class Router
 	 * If all other 1:1 tests have not returned or continued, and the current portions don't match, then the $route and $uri don't match.
 	 *
 	 * @param array $route The exploded Route
-	 * @param array $uri The exploded request URI
+	 * @param array $uri   The exploded request URI
 	 *
 	 * @return array|bool Returns an array containing any parameters matched by the URI. If no parameters were matched but the URI and Route match, the array will be empty. If the URI and Route don't match, returns false.
 	 */
-	private function matchRoute( $route, $uri )
+	private function matchRoute( array $route, array $uri )
 	{
 		$parameters  = [];
 		$routeLength = count( $route );
@@ -165,7 +165,7 @@ class Router
 	 *
 	 * Calls all private methods used to match a Route to the request URI.
 	 */
-	public  function executeRouteMatch()
+	public function executeRouteMatch()
 	{
 		$this->uri = $this->explodeRoute( $_SERVER[ 'REQUEST_URI' ] );
 

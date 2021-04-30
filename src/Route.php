@@ -2,8 +2,7 @@
 
 namespace Crossview\Exphpress;
 
-use \Exception;
-use Crossview\Exphpress\Exceptions\ExphpressException;
+use \InvalidArgumentException;
 use Crossview\Exphpress\Http\Request;
 use Crossview\Exphpress\Http\Response;
 
@@ -15,32 +14,35 @@ class Route
 	private string $route;
 
 	/**
-	 * @var array An associative array representing HTTP method callback pairs
+	 * @var array An associative array representing HTTP method => middleware pairs
 	 */
-	private array $handlers;
+	private array $middlewares;
+
+	/**
+	 * @var string[] An array representing valid HTTP methods. This array also includes 'ANY', which is used to respond to an otherwise-unhandled HTTP method
+	 */
+	private array $methods = [
+		"ANY",
+		"CONNECT",
+		"DELETE",
+		"GET",
+		"HEAD",
+		"OPTIONS",
+		"PATCH",
+		"POST",
+		"PUT",
+		"TRACE"
+	];
 
 	/**
 	 * Route constructor.
 	 *
-	 * @param string  $route      The URI this Route represents
-	 * @param mixed[] $handlers   [optional] An associative array representing HTTP method => callback
-	 *                            pairs.
-	 *
-	 * @throws Exception @see Route::verifyHandlers()
+	 * @param string $route The URI this Route represents
 	 */
-	public function __construct( string $route, $handlers = null )
+	public function __construct( string $route )
 	{
-		$this->route = $route;
-		if ( !empty( $handlers ) )
-		{
-			$this->verifyHandlers( $handlers );
-			$this->handlers = $handlers;
-		}
-		else
-		{
-			$this->handlers = array();
-		}
-
+		$this->route       = $route;
+		$this->middlewares = array();
 	}
 
 	/**
@@ -54,199 +56,172 @@ class Route
 	}
 
 	/**
-	 * Verifies the validity of a route handler
+	 * Gets the complete list of route middlewares
 	 *
-	 * Looks at the values passed and ensures that they are of the right type and that the selected HTTP verb has not
-	 * already been used. This last behavior can be overriden by setting $suppressDuplicateKeyException to true.
-	 *
-	 * @param array   $handlers                      An associative array of HTTP method => callback pairs
-	 * @param boolean $suppressDuplicateKeyException (optional) A flag indicating that an exception should NOT be
-	 *                                               thrown in the event that a callback already exists for a
-	 *                                               particular HTTP method. If set to true, the exception is
-	 *                                               suppressed and the existing callback is overwritten. If not set,
-	 *                                               defaults to false
-	 *
-	 * @throws ExphpressException if HTTP method is not a string
-	 * @throws ExphpressException if provided callback is not callable
-	 * @throws ExphpressException if HTTP method already has a valid callback; this can be suppressed by setting the optional
-	 *                   $suppressDuplicateKeyException to true
+	 * @return Route[] The list of route middlewares as an associative array of HTTP verb => middleware pairs
 	 */
-	private function verifyHandlers( $handlers, $suppressDuplicateKeyException = false )
+	public function getMiddlewares(): array
 	{
-		foreach ( $handlers as $method => $callback )
-		{
-			if ( !is_string( $method ) )
-				throw new ExphpressException( "The HTTP Method provided to the route '{$this->route}' must be a string; '" . gettype($method) . "' provided" );
-
-			if ( !is_callable( $callback ) )
-				throw new ExphpressException( "The callback provided to the route '{$this->route}' {$method} HTTP method must be a function; '" . gettype( $callback ) . "' provided" );
-
-			if ( !$suppressDuplicateKeyException && isset( $this->handlers[ $method ] ) )
-				throw new ExphpressException( "The HTTP Request Method '{$method}' in the route '{$this->route}' already has a callback assigned" );
-
-		}
+		return $this->middlewares;
 	}
 
 	/**
-	 * Gets the complete list of route handlers
+	 * Adds a route middleware generically
 	 *
-	 * @return Route[] The list of route handlers as an associative array of HTTP verb => handler pairs
-	 */
-	public function getHandlers(): array
-	{
-		return $this->handlers;
-	}
-
-	/**
-	 * Adds a route handler generically
+	 * This method works under the hood of each HTTP verb method to add a route middleware in a generic way.
 	 *
-	 * This method works under the hood of each HTTP verb method to add a route handler in a generic way.
-	 *
-	 * @param string   $method   The HTTP verb to respond to
-	 * @param callable $callback The callback used to respond to the route via a given HTTP verb
+	 * @param string              $method     The HTTP verb to respond to
+	 * @param MiddlewareInterface $middleware The middleware used to respond to the route via a given HTTP verb
 	 *
 	 * @return $this Returns the instance of the Route object (to enable method chaining)
 	 */
-	public function addHandler( string $method, callable $callback ): Route
+	public function addMiddleware( string $method, MiddlewareInterface $middleware ): Route
 	{
-		$handler = array( $method => $callback );
-		$this->verifyHandlers( $handler );
-		$this->handlers[ $method ] = $callback;
+		if ( array_search( $method, $this->methods ) === false )
+		{
+			throw new InvalidArgumentException( "'$method' is not a valid HTTP method." );
+		}
+		$this->middlewares[ $method ] = $middleware;
 
 		return $this;
 	}
 
 	/**
-	 * A wrapper function around @see \Crossview\Exphpress\Http\Route::addHandler for CONNECT requests
+	 * A wrapper function around Route::addMiddleware for CONNECT requests
 	 *
-	 * @param callable $callback the function to execute when the Route is accessed
+	 * @param MiddlewareInterface $middleware the function to execute when the Route is accessed
 	 * @return $this
 	 */
-	public function connect(callable $callback): Route
+	public function connect( MiddlewareInterface $middleware ): Route
 	{
-		return $this->addHandler("CONNECT", $callback);
+		return $this->addMiddleware( "CONNECT", $middleware );
 	}
 
 	/**
-	 * A wrapper function around @see \Crossview\Exphpress\Http\Route::addHandler for DELETE requests
+	 * A wrapper function around Route::addMiddleware for DELETE requests
 	 *
-	 * @param callable $callback the function to execute when the Route is accessed
+	 * @param MiddlewareInterface $middleware the function to execute when the Route is accessed
 	 * @return $this
 	 */
-	public function delete(callable $callback): Route
+	public function delete( MiddlewareInterface $middleware ): Route
 	{
-		return $this->addHandler("DELETE", $callback);
+		return $this->addMiddleware( "DELETE", $middleware );
 	}
 
 	/**
-	 * A wrapper function around @see \Crossview\Exphpress\Http\Route::addHandler for GET requests
+	 * A wrapper function around Route::addMiddleware for GET requests
 	 *
-	 * @param callable $callback the function to execute when the Route is accessed
+	 * @param MiddlewareInterface $middleware the function to execute when the Route is accessed
 	 * @return $this
 	 */
-	public function get(callable $callback): Route
+	public function get( MiddlewareInterface $middleware ): Route
 	{
-		return $this->addHandler("GET", $callback);
+		return $this->addMiddleware( "GET", $middleware );
 	}
 
 	/**
-	 * A wrapper function around @see \Crossview\Exphpress\Http\Route::addHandler for HEAD requests
+	 * A wrapper function around Route::addMiddleware for HEAD requests
 	 *
-	 * @param callable $callback the function to execute when the Route is accessed
+	 * @param MiddlewareInterface $middleware the function to execute when the Route is accessed
 	 * @return $this
 	 */
-	public function head(callable $callback): Route
+	public function head( MiddlewareInterface $middleware ): Route
 	{
-		return $this->addHandler("HEAD", $callback);
+		return $this->addMiddleware( "HEAD", $middleware );
 	}
 
 	/**
-	 * A wrapper function around @see \Crossview\Exphpress\Http\Route::addHandler for OPTIONS requests
+	 * A wrapper function around Route::addMiddleware for OPTIONS requests
 	 *
-	 * @param callable $callback the function to execute when the Route is accessed
+	 * @param MiddlewareInterface $middleware the function to execute when the Route is accessed
 	 * @return $this
 	 */
-	public function options(callable $callback): Route
+	public function options( MiddlewareInterface $middleware ): Route
 	{
-		return $this->addHandler("OPTIONS", $callback);
+		return $this->addMiddleware( "OPTIONS", $middleware );
 	}
 
 	/**
-	 * A wrapper function around @see \Crossview\Exphpress\Http\Route::addHandler for PATCH requests
+	 * A wrapper function around Route::addMiddleware for PATCH requests
 	 *
-	 * @param callable $callback the function to execute when the Route is accessed
+	 * @param MiddlewareInterface $middleware the function to execute when the Route is accessed
 	 * @return $this
 	 */
-	public function patch(callable $callback): Route
+	public function patch( MiddlewareInterface $middleware ): Route
 	{
-		return $this->addHandler("PATCH", $callback);
+		return $this->addMiddleware( "PATCH", $middleware );
 	}
 
 	/**
-	 * A wrapper function around @see \Crossview\Exphpress\Http\Route::addHandler for POST requests
+	 * A wrapper function around Route::addMiddleware for POST requests
 	 *
-	 * @param callable $callback the function to execute when the Route is accessed
+	 * @param MiddlewareInterface $middleware the function to execute when the Route is accessed
 	 * @return $this
 	 */
-	public function post(callable $callback): Route
+	public function post( MiddlewareInterface $middleware ): Route
 	{
-		return $this->addHandler("POST", $callback);
+		return $this->addMiddleware( "POST", $middleware );
 	}
 
 	/**
-	 * A wrapper function around @see \Crossview\Exphpress\Http\Route::addHandler for PUT requests
+	 * A wrapper function around Route::addMiddleware for PUT requests
 	 *
-	 * @param callable $callback the function to execute when the Route is accessed
+	 * @param MiddlewareInterface $middleware the function to execute when the Route is accessed
 	 * @return $this
 	 */
-	public function put(callable $callback): Route
+	public function put( MiddlewareInterface $middleware ): Route
 	{
-		return $this->addHandler("PUT", $callback);
+		return $this->addMiddleware( "PUT", $middleware );
 	}
 
 	/**
-	 * A wrapper function around @see \Crossview\Exphpress\Http\Route::addHandler for TRACE requests
+	 * A wrapper function around Route::addMiddleware for TRACE requests
 	 *
-	 * @param callable $callback the function to execute when the Route is accessed
+	 * @param MiddlewareInterface $middleware the function to execute when the Route is accessed
 	 * @return $this
 	 */
-	public function trace(callable $callback): Route
+	public function trace( MiddlewareInterface $middleware ): Route
 	{
-		return $this->addHandler("TRACE", $callback);
+		return $this->addMiddleware( "TRACE", $middleware );
 	}
 
 	/**
-	 * Executes a callback based on the current HTTP verb
+	 * Executes a middleware based on the current HTTP verb
 	 *
-	 * If no callback is registered for the current HTTP verb, the 'all' callback is fired. If no 'all' callback is
-	 * registered, a 405 response is sent along with an Allow header containing each of the HTTP verbs with a
-	 * registered callback.
+	 * If no middleware is registered for the current HTTP verb, the 'all' middleware is fired. If no 'all' middleware is registered, a 405 response is sent along with an Allow header containing each of the HTTP verbs with a registered middleware.
 	 *
 	 * @param Request  $request
 	 * @param Response $response
 	 */
-	public function executeCallback( Request $request, Response $response )
+	public function executemiddleware( Request $request, Response $response )
 	{
-		if ( isset( $this->handlers[ $request->method ] ) )
-			$this->handlers[ $request->method ]( $request, $response );
-		else if ( isset( $this->handlers[ 'ALL' ] ) )
-			$this->handlers[ 'ALL' ]( $request, $response );
-		else
+		if ( isset( $this->middlewares[ $request->method ] ) )
 		{
-			$allowValue = '';
-			$methods    = array_keys( $this->handlers );
-
-			foreach ( $methods as $method )
+			$this->middlewares[ $request->method ]( $request, $response );
+		} else
+		{
+			if ( isset( $this->middlewares[ 'ALL' ] ) )
 			{
-				$allowValue .= $method . ', ';
+				$this->middlewares[ 'ALL' ]( $request, $response );
+			} else
+			{
+				$allowValue = '';
+				$methods    = array_keys( $this->middlewares );
+
+				foreach ( $methods as $method )
+				{
+					$allowValue .= $method . ', ';
+				}
+
+				if ( strlen( $allowValue ) > 0 )
+				{
+					$allowValue = substr( $allowValue, 0, -2 );
+				}
+
+				$response->status( 405 )
+						 ->setHeader( 'Allow', $allowValue )
+						 ->send();
 			}
-
-			if ( strlen( $allowValue ) > 0 )
-				$allowValue = substr( $allowValue, 0, -2 );
-
-			$response->status( 405 )
-					 ->setHeader( 'Allow', $allowValue )
-					 ->send();
 		}
 	}
 }
