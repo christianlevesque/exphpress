@@ -7,16 +7,27 @@ use Crossview\Exphpress\Http\Response;
 
 class Router
 {
-	private array $uri        = [];
-	private array $routes     = [];
-	private array $parameters = [];
-	private Route $matchedRoute;
+	private static Router $instance;
+	private array         $uri        = [];
+	private array         $routes     = [];
+	private array         $parameters = [];
+	private Route         $matchedRoute;
 
 	/**
 	 * Router constructor
 	 */
-	public function __construct()
+	private function __construct()
 	{
+	}
+
+	public static function getInstance(): Router
+	{
+		if ( !isset( self::$instance ) )
+		{
+			self::$instance = new self;
+		}
+
+		return self::$instance;
 	}
 
 	/**
