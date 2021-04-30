@@ -2,8 +2,6 @@
 
 namespace Crossview\Exphpress;
 
-use \Exception;
-
 class Router
 {
 	private array $uri        = [];
