@@ -1,6 +1,6 @@
 <?php
 
-namespace Crossview\Exphpress;
+namespace Crossview\Exphpress\Middleware;
 
 use \Closure;
 use Crossview\Exphpress\Http\Request;

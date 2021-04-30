@@ -5,6 +5,7 @@ namespace Crossview\Exphpress;
 use \InvalidArgumentException;
 use Crossview\Exphpress\Http\Request;
 use Crossview\Exphpress\Http\Response;
+use Crossview\Exphpress\Middleware\MiddlewareInterface;
 
 class Route
 {
