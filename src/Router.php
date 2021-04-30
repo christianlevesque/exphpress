@@ -26,8 +26,6 @@ class Router
 	 * @param string $uri The URI to match for registering route handlers
 	 *
 	 * @return Route Returns the Route object represented by the passed $uri, or a new Route object if no matching Route exists
-	 *
-	 * @throws Exception @see Route::verifyHandlers()
 	 */
 	public function route( string $uri ): Route
 	{
