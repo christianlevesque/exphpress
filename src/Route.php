@@ -54,27 +54,6 @@ class Route
 	}
 
 	/**
-	 * __call() magic method
-	 *
-	 * Route uses the __call() method to allow developers to register callbacks for HTTP verbs without needing to
-	 * define a method for each HTTP verb. An obvious drawback to this approach is that if the developer misspells the
-	 * verb (e.g., "deleet" instead of "delete"), the callback for that verb will be inaccessible and there will be no
-	 * error message.
-	 *
-	 * @param $verb
-	 * @param $arguments
-	 *
-	 * @return Route
-	 * @throws ExphpressException
-	 */
-	public function __call( $verb, $arguments )
-	{
-		$verb = strtoupper( $verb );
-
-		return $this->addHandler( $verb, $arguments[ 0 ] );
-	}
-
-	/**
 	 * Verifies the validity of a route handler
 	 *
 	 * Looks at the values passed and ensures that they are of the right type and that the selected HTTP verb has not
@@ -127,15 +106,113 @@ class Route
 	 * @param callable $callback The callback used to respond to the route via a given HTTP verb
 	 *
 	 * @return $this Returns the instance of the Route object (to enable method chaining)
-	 * @throws ExphpressException @see Route::verifyHandlers()
 	 */
-	private function addHandler( string $method, callable $callback ): Route
+	public function addHandler( string $method, callable $callback ): Route
 	{
 		$handler = array( $method => $callback );
 		$this->verifyHandlers( $handler );
 		$this->handlers[ $method ] = $callback;
 
 		return $this;
+	}
+
+	/**
+	 * A wrapper function around @see \Crossview\Exphpress\Http\Route::addHandler for CONNECT requests
+	 *
+	 * @param callable $callback the function to execute when the Route is accessed
+	 * @return $this
+	 */
+	public function connect(callable $callback): Route
+	{
+		return $this->addHandler("CONNECT", $callback);
+	}
+
+	/**
+	 * A wrapper function around @see \Crossview\Exphpress\Http\Route::addHandler for DELETE requests
+	 *
+	 * @param callable $callback the function to execute when the Route is accessed
+	 * @return $this
+	 */
+	public function delete(callable $callback): Route
+	{
+		return $this->addHandler("DELETE", $callback);
+	}
+
+	/**
+	 * A wrapper function around @see \Crossview\Exphpress\Http\Route::addHandler for GET requests
+	 *
+	 * @param callable $callback the function to execute when the Route is accessed
+	 * @return $this
+	 */
+	public function get(callable $callback): Route
+	{
+		return $this->addHandler("GET", $callback);
+	}
+
+	/**
+	 * A wrapper function around @see \Crossview\Exphpress\Http\Route::addHandler for HEAD requests
+	 *
+	 * @param callable $callback the function to execute when the Route is accessed
+	 * @return $this
+	 */
+	public function head(callable $callback): Route
+	{
+		return $this->addHandler("HEAD", $callback);
+	}
+
+	/**
+	 * A wrapper function around @see \Crossview\Exphpress\Http\Route::addHandler for OPTIONS requests
+	 *
+	 * @param callable $callback the function to execute when the Route is accessed
+	 * @return $this
+	 */
+	public function options(callable $callback): Route
+	{
+		return $this->addHandler("OPTIONS", $callback);
+	}
+
+	/**
+	 * A wrapper function around @see \Crossview\Exphpress\Http\Route::addHandler for PATCH requests
+	 *
+	 * @param callable $callback the function to execute when the Route is accessed
+	 * @return $this
+	 */
+	public function patch(callable $callback): Route
+	{
+		return $this->addHandler("PATCH", $callback);
+	}
+
+	/**
+	 * A wrapper function around @see \Crossview\Exphpress\Http\Route::addHandler for POST requests
+	 *
+	 * @param callable $callback the function to execute when the Route is accessed
+	 * @return $this
+	 */
+	public function post(callable $callback): Route
+	{
+		return $this->addHandler("POST", $callback);
+	}
+
+	/**
+	 * A wrapper function around @see \Crossview\Exphpress\Http\Route::addHandler for PUT requests
+	 *
+	 * @param callable $callback the function to execute when the Route is accessed
+	 * @return $this
+	 */
+	public function put(callable $callback): Route
+	{
+		return $this->addHandler("PUT", $callback);
+	}
+
+	/**
+	 * A wrapper function around @see \Crossview\Exphpress\Http\Route::addHandler for TRACE requests
+	 *
+	 * @param callable $callback the function to execute when the Route is accessed
+	 * @return $this
+	 */
+	public function trace(callable $callback): Route
+	{
+		return $this->addHandler("TRACE", $callback);
 	}
 
 	/**
