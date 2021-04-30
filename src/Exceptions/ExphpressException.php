@@ -6,23 +6,13 @@ use \Exception;
 
 class ExphpressException extends Exception
 {
-	private int $errorCode;
 	/**
 	 * ExphpressException constructor.
 	 * @param string $message
-	 * @param int $errorCode
+	 * @param int $httpStatusCode
 	 */
-	public function __construct(string $message, int $errorCode = 500)
+	public function __construct(string $message, int $httpStatusCode = 500)
 	{
-		parent::__construct($message);
-		$this->errorCode = $errorCode;
-	}
-
-	/**
-	 * @return int The error code to return
-	 */
-	public function getErrorCode(): int
-	{
-		return $this->errorCode;
+		parent::__construct($message, $httpStatusCode);
 	}
 }
