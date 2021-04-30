@@ -2,10 +2,10 @@
 
 namespace Crossview\Exphpress;
 
+use \Closure;
 use \InvalidArgumentException;
 use Crossview\Exphpress\Http\Request;
 use Crossview\Exphpress\Http\Response;
-use Crossview\Exphpress\Middleware\MiddlewareInterface;
 
 class Route
 {
@@ -15,9 +15,9 @@ class Route
 	private string $route;
 
 	/**
-	 * @var array An associative array representing HTTP method => middleware pairs
+	 * @var array An associative array representing HTTP method => handler pairs
 	 */
-	private array $middlewares;
+	private array $handlers;
 
 	/**
 	 * @var string[] An array representing valid HTTP methods. This array also includes 'ANY', which is used to respond to an otherwise-unhandled HTTP method
@@ -43,7 +43,7 @@ class Route
 	public function __construct( string $route )
 	{
 		$this->route       = $route;
-		$this->middlewares = array();
+		$this->handlers = array();
 	}
 
 	/**
@@ -57,157 +57,157 @@ class Route
 	}
 
 	/**
-	 * Gets the complete list of route middlewares
+	 * Gets the complete list of route handlers
 	 *
-	 * @return Route[] The list of route middlewares as an associative array of HTTP verb => middleware pairs
+	 * @return array The list of route handlers as an associative array of HTTP verb => handler pairs
 	 */
-	public function getMiddlewares(): array
+	public function getHandlers(): array
 	{
-		return $this->middlewares;
+		return $this->handlers;
 	}
 
 	/**
-	 * Adds a route middleware generically
+	 * Adds a route handler generically
 	 *
-	 * This method works under the hood of each HTTP verb method to add a route middleware in a generic way.
+	 * This method works under the hood of each HTTP verb method to add a route handler in a generic way.
 	 *
 	 * @param string              $method     The HTTP verb to respond to
-	 * @param MiddlewareInterface $middleware The middleware used to respond to the route via a given HTTP verb
+	 * @param Closure $handler The handler used to respond to the route via a given HTTP verb
 	 *
 	 * @return $this Returns the instance of the Route object (to enable method chaining)
 	 */
-	public function addMiddleware( string $method, MiddlewareInterface $middleware ): Route
+	public function addHandler( string $method, Closure $handler ): Route
 	{
 		if ( array_search( $method, $this->methods ) === false )
 		{
 			throw new InvalidArgumentException( "'$method' is not a valid HTTP method." );
 		}
-		$this->middlewares[ $method ] = $middleware;
+		$this->handlers[ $method ] = $handler;
 
 		return $this;
 	}
 
 	/**
-	 * A wrapper function around Route::addMiddleware for CONNECT requests
+	 * A wrapper function around Route::addHandler for CONNECT requests
 	 *
-	 * @param MiddlewareInterface $middleware the function to execute when the Route is accessed
+	 * @param Closure $handler the function to execute when the Route is accessed
 	 * @return $this
 	 */
-	public function connect( MiddlewareInterface $middleware ): Route
+	public function connect( Closure $handler ): Route
 	{
-		return $this->addMiddleware( "CONNECT", $middleware );
+		return $this->addHandler( "CONNECT", $handler );
 	}
 
 	/**
-	 * A wrapper function around Route::addMiddleware for DELETE requests
+	 * A wrapper function around Route::addHandler for DELETE requests
 	 *
-	 * @param MiddlewareInterface $middleware the function to execute when the Route is accessed
+	 * @param Closure $handler the function to execute when the Route is accessed
 	 * @return $this
 	 */
-	public function delete( MiddlewareInterface $middleware ): Route
+	public function delete( Closure $handler ): Route
 	{
-		return $this->addMiddleware( "DELETE", $middleware );
+		return $this->addHandler( "DELETE", $handler );
 	}
 
 	/**
-	 * A wrapper function around Route::addMiddleware for GET requests
+	 * A wrapper function around Route::addHandler for GET requests
 	 *
-	 * @param MiddlewareInterface $middleware the function to execute when the Route is accessed
+	 * @param Closure $handler the function to execute when the Route is accessed
 	 * @return $this
 	 */
-	public function get( MiddlewareInterface $middleware ): Route
+	public function get( Closure $handler ): Route
 	{
-		return $this->addMiddleware( "GET", $middleware );
+		return $this->addHandler( "GET", $handler );
 	}
 
 	/**
-	 * A wrapper function around Route::addMiddleware for HEAD requests
+	 * A wrapper function around Route::addHandler for HEAD requests
 	 *
-	 * @param MiddlewareInterface $middleware the function to execute when the Route is accessed
+	 * @param Closure $handler the function to execute when the Route is accessed
 	 * @return $this
 	 */
-	public function head( MiddlewareInterface $middleware ): Route
+	public function head( Closure $handler ): Route
 	{
-		return $this->addMiddleware( "HEAD", $middleware );
+		return $this->addHandler( "HEAD", $handler );
 	}
 
 	/**
-	 * A wrapper function around Route::addMiddleware for OPTIONS requests
+	 * A wrapper function around Route::addHandler for OPTIONS requests
 	 *
-	 * @param MiddlewareInterface $middleware the function to execute when the Route is accessed
+	 * @param Closure $handler the function to execute when the Route is accessed
 	 * @return $this
 	 */
-	public function options( MiddlewareInterface $middleware ): Route
+	public function options( Closure $handler ): Route
 	{
-		return $this->addMiddleware( "OPTIONS", $middleware );
+		return $this->addHandler( "OPTIONS", $handler );
 	}
 
 	/**
-	 * A wrapper function around Route::addMiddleware for PATCH requests
+	 * A wrapper function around Route::addHandler for PATCH requests
 	 *
-	 * @param MiddlewareInterface $middleware the function to execute when the Route is accessed
+	 * @param Closure $handler the function to execute when the Route is accessed
 	 * @return $this
 	 */
-	public function patch( MiddlewareInterface $middleware ): Route
+	public function patch( Closure $handler ): Route
 	{
-		return $this->addMiddleware( "PATCH", $middleware );
+		return $this->addHandler( "PATCH", $handler );
 	}
 
 	/**
-	 * A wrapper function around Route::addMiddleware for POST requests
+	 * A wrapper function around Route::addHandler for POST requests
 	 *
-	 * @param MiddlewareInterface $middleware the function to execute when the Route is accessed
+	 * @param Closure $handler the function to execute when the Route is accessed
 	 * @return $this
 	 */
-	public function post( MiddlewareInterface $middleware ): Route
+	public function post( Closure $handler ): Route
 	{
-		return $this->addMiddleware( "POST", $middleware );
+		return $this->addHandler( "POST", $handler );
 	}
 
 	/**
-	 * A wrapper function around Route::addMiddleware for PUT requests
+	 * A wrapper function around Route::addHandler for PUT requests
 	 *
-	 * @param MiddlewareInterface $middleware the function to execute when the Route is accessed
+	 * @param Closure $handler the function to execute when the Route is accessed
 	 * @return $this
 	 */
-	public function put( MiddlewareInterface $middleware ): Route
+	public function put( Closure $handler ): Route
 	{
-		return $this->addMiddleware( "PUT", $middleware );
+		return $this->addHandler( "PUT", $handler );
 	}
 
 	/**
-	 * A wrapper function around Route::addMiddleware for TRACE requests
+	 * A wrapper function around Route::addHandler for TRACE requests
 	 *
-	 * @param MiddlewareInterface $middleware the function to execute when the Route is accessed
+	 * @param Closure $handler the function to execute when the Route is accessed
 	 * @return $this
 	 */
-	public function trace( MiddlewareInterface $middleware ): Route
+	public function trace( Closure $handler ): Route
 	{
-		return $this->addMiddleware( "TRACE", $middleware );
+		return $this->addHandler( "TRACE", $handler );
 	}
 
 	/**
-	 * Executes a middleware based on the current HTTP verb
+	 * Executes a handler based on the current HTTP verb
 	 *
-	 * If no middleware is registered for the current HTTP verb, the 'all' middleware is fired. If no 'all' middleware is registered, a 405 response is sent along with an Allow header containing each of the HTTP verbs with a registered middleware.
+	 * If no handler is registered for the current HTTP verb, the 'all' handler is fired. If no 'all' handler is registered, a 405 response is sent along with an Allow header containing each of the HTTP verbs with a registered handler.
 	 *
 	 * @param Request  $request
 	 * @param Response $response
 	 */
-	public function executemiddleware( Request $request, Response $response )
+	public function executehandler( Request $request, Response $response )
 	{
-		if ( isset( $this->middlewares[ $request->method ] ) )
+		if ( isset( $this->handlers[ $request->method ] ) )
 		{
-			$this->middlewares[ $request->method ]( $request, $response );
+			$this->handlers[ $request->method ]( $request, $response );
 		} else
 		{
-			if ( isset( $this->middlewares[ 'ALL' ] ) )
+			if ( isset( $this->handlers[ 'ALL' ] ) )
 			{
-				$this->middlewares[ 'ALL' ]( $request, $response );
+				$this->handlers[ 'ALL' ]( $request, $response );
 			} else
 			{
 				$allowValue = '';
-				$methods    = array_keys( $this->middlewares );
+				$methods    = array_keys( $this->handlers );
 
 				foreach ( $methods as $method )
 				{
