@@ -2,18 +2,17 @@
 
 namespace Crossview\Exphpress;
 
-use Exphpress\Http\Request;
-use Exphpress\Http\Response;
+use Crossview\Exphpress\Http\Request;
+use Crossview\Exphpress\Http\Response;
 
 class App
 {
-	private static App $instance;
 	private Router     $router;
 	private Request    $request;
 	private Response   $response;
 	private array      $messages;
 
-	private function __construct( string $domain )
+	public function __construct( string $domain )
 	{
 		$this->messages = require __DIR__ . '/config/strings.php';
 
@@ -25,15 +24,5 @@ class App
 		$this->router   = new Router;
 		$this->request  = new Request;
 		$this->response = new Response( $domain );
-	}
-
-	public static function getInstance()
-	{
-		if ( !isset( self::$instance ) )
-		{
-			self::$instance = new self;
-		}
-
-		return self::$instance;
 	}
 }
