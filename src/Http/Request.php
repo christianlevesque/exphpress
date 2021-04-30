@@ -33,7 +33,7 @@ class Request
 
 		//TODO: set up $requestParameters using parse_str()
 
-		$this->cookies = filter_input_array( INPUT_COOKIE, FILTER_UNSAFE_RAW );
+		$this->cookies = $_COOKIE;
 	}
 
 	/**

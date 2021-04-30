@@ -25,4 +25,28 @@ class App
 		$this->request  = new Request;
 		$this->response = new Response( $domain );
 	}
+
+	/**
+	 * @return Router
+	 */
+	public function getRouter(): Router
+	{
+		return $this->router;
+	}
+
+	/**
+	 * @return Request
+	 */
+	public function getRequest(): Request
+	{
+		return $this->request;
+	}
+
+	/**
+	 * @return Response
+	 */
+	public function getResponse(): Response
+	{
+		return $this->response;
+	}
 }
