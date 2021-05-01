@@ -77,7 +77,7 @@ class App
 			$closure = function() use ($currentMiddleware, &$request, &$response, $nextMiddleware) {
 				$currentMiddleware->handle( $request, $response, $nextMiddleware );
 			};
-			array_push($processedMiddlewares, $closure);
+			array_unshift($processedMiddlewares, $closure);
 			$nextMiddleware = $currentMiddleware;
 //			if ( array_key_exists( $i + 1, $this->middleware ) )
 //			{
