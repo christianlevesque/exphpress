@@ -67,6 +67,8 @@ class App
 	public function execute(): void
 	{
 		$nextMiddleware = [];
+		$request = $this->request;
+		$response = $this->response;
 		for ( $i = count( $this->middleware ) - 1; $i >= 0; $i-- )
 		{
 			if ( array_key_exists( $i + 1, $this->middleware ) )
