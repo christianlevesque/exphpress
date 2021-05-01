@@ -66,17 +66,32 @@ class App
 	 */
 	public function execute(): void
 	{
+		// We need Request and Response as local references for the closure
 		$request = $this->request;
 		$response = $this->response;
+
+		// The pipeline will just be a function chain
+		// The last function in the pipeline will be empty so we don't have to do any null checking
 		$pipeline = function() {};
+
+		// Nest each new middleware in the pipeline
+		// Start from the end of the array so we can have each next() call ready to go
 		for ( $i = count( $this->middleware ) - 1; $i >= 0; $i-- )
 		{
+			// Get a reference to the current middleware for the Closure
 			$currentMiddleware = $this->middleware[$i];
+
+			// The closure needs to reference the current middleware, the request, the response, and the existing pipeline
+			// The existing pipeline will be used as next() for the current closure
 			$closure = function() use ($currentMiddleware, &$request, &$response, $pipeline) {
 				$currentMiddleware->handle( $request, $response, $pipeline );
 			};
+
+			// Make the pipeline the current closure to extend the pipeline
 			$pipeline = $closure;
 		}
+
+		// Execute the pipeline
 		$pipeline();
 	}
 
