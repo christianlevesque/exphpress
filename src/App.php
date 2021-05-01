@@ -78,7 +78,7 @@ class App
 				$currentMiddleware->handle( $request, $response, $nextMiddleware );
 			};
 			array_unshift($processedMiddlewares, $closure);
-			$nextMiddleware = $currentMiddleware;
+			$nextMiddleware = $closure;
 //			if ( array_key_exists( $i + 1, $this->middleware ) )
 //			{
 //				$currentMiddleware = $this->middleware[$i];
