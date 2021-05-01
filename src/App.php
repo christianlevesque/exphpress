@@ -76,13 +76,10 @@ class App
 
 		// Wrap each new middleware around the existing pipeline
 		// Start from the end of the array so we can have each next() call ready to go
-		for ( $i = count( $this->middleware ) - 1; $i >= 0; $i-- )
+		foreach ( $this->middleware as $currentMiddleware )
 		{
-			// Get a reference to the current middleware for the Closure
-			$currentMiddleware = $this->middleware[$i];
-
 			// The closure needs to reference the current middleware, the request, the response, and the existing pipeline
-			// The existing pipeline will be used as next() for the new closure
+			// The existing pipeline will be used as next() for the new pipeline
 			$pipeline = function() use ($currentMiddleware, &$request, &$response, $pipeline) {
 				$currentMiddleware->handle( $request, $response, $pipeline );
 			};
