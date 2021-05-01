@@ -98,8 +98,8 @@ class App
 			array_unshift( $processedMiddleware, $this->middleware[ $i ] );
 		}
 
-//		$this->middleware[ 0 ]->handle( $request, $response, $nextMiddleware[ 0 ] );
-		var_dump($nextMiddleware);
+		$this->middleware[ 0 ]->handle( $request, $response, $nextMiddleware[ 1 ] );
+//		var_dump($nextMiddleware);
 		//		for ( $i = 0; $i < count( $processedMiddleware ); $i++ )
 		//		{
 		//			$processedMiddleware[ $i ]->handle( $request, $response, $nextMiddleware[ $i ] );
