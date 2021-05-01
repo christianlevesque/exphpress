@@ -97,9 +97,9 @@ class App
 //
 //			array_unshift( $nextMiddleware, $nextCallback );
 		}
-
-		$first = $this->middleware[0];
-		$first->handle($request, $response, $nextMiddleware[0]);
+		$processedMiddlewares[0]();
+//		$first = $this->middleware[0];
+//		$first->handle($request, $response, $nextMiddleware[0]);
 //		$nextMiddleware[0]();
 		//		var_dump($nextMiddleware);
 		//		for ( $i = 0; $i < count( $processedMiddleware ); $i++ )
