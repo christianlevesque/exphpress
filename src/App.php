@@ -99,7 +99,7 @@ class App
 		}
 
 //		$this->middleware[ 0 ]->handle( $request, $response, $nextMiddleware[ 0 ] );
-		echo json_encode($nextMiddleware, JSON_THROW_ON_ERROR);
+		var_dump($nextMiddleware);
 		//		for ( $i = 0; $i < count( $processedMiddleware ); $i++ )
 		//		{
 		//			$processedMiddleware[ $i ]->handle( $request, $response, $nextMiddleware[ $i ] );
