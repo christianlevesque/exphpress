@@ -2,7 +2,6 @@
 
 namespace Crossview\Exphpress;
 
-use \Closure;
 use \InvalidArgumentException;
 use Crossview\Exphpress\Http\Request;
 use Crossview\Exphpress\Http\Response;
