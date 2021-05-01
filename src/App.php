@@ -67,39 +67,33 @@ class App
 	 */
 	public function execute(): void
 	{
-		$request             = $this->request;
-		$response            = $this->response;
-		$processedMiddleware = [];
-
-		/**
-		 * @var Closure[]
-		 */
-		$nextMiddleware = [];
-
-		for ( $i = count( $this->middleware ) - 1; $i >= 0; $i-- )
-		{
-			if ( array_key_exists( $i + 1, $this->middleware ) )
-			{
-				$currentMiddleware = $this->middleware[$i];
-				$nextMiddlewareReference = $nextMiddleware[0];
-				$nextCallback = function () use ( &$currentMiddleware, &$request, &$response, &$nextMiddlewareReference )
-				{
-					$currentMiddleware->handle( $request, $response, $nextMiddlewareReference );
-				};
-			} else
-			{
-				$nextCallback = function ()
-				{
-					// If this is the first iteration through $this->middleware, there isn't a next callback to call, so just pass an empty Closure so we don't need to do a null check
-				};
-			}
-
-			array_unshift( $nextMiddleware, $nextCallback );
-			array_unshift( $processedMiddleware, $this->middleware[ $i ] );
-		}
-
-		$nextMiddleware[0]();
-//		var_dump($nextMiddleware);
+		$current = array_shift( $this->middleware );
+		$next    = $this->middleware[ 0 ];
+		$current->handle($this->request, $this->response, $next);
+		//		for ( $i = count( $this->middleware ) - 1; $i >= 0; $i-- )
+		//		{
+		//			if ( array_key_exists( $i + 1, $this->middleware ) )
+		//			{
+		//				$currentMiddleware = $this->middleware[$i];
+		//				$nextMiddlewareReference = $nextMiddleware[0];
+		//				$nextCallback = function () use ( &$currentMiddleware, &$request, &$response, &$nextMiddlewareReference )
+		//				{
+		//					$currentMiddleware->handle( $request, $response, $nextMiddlewareReference );
+		//				};
+		//			} else
+		//			{
+		//				$nextCallback = function ()
+		//				{
+		//					// If this is the first iteration through $this->middleware, there isn't a next callback to call, so just pass an empty Closure so we don't need to do a null check
+		//				};
+		//			}
+		//
+		//			array_unshift( $nextMiddleware, $nextCallback );
+		//			array_unshift( $processedMiddleware, $this->middleware[ $i ] );
+		//		}
+		//
+		//		$nextMiddleware[0]();
+		//		var_dump($nextMiddleware);
 		//		for ( $i = 0; $i < count( $processedMiddleware ); $i++ )
 		//		{
 		//			$processedMiddleware[ $i ]->handle( $request, $response, $nextMiddleware[ $i ] );
