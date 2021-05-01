@@ -66,46 +66,18 @@ class App
 	 */
 	public function execute(): void
 	{
-//		$nextMiddleware = [];
-		$processedMiddlewares = [];
 		$request = $this->request;
 		$response = $this->response;
-		$nextMiddleware = function() {};
+		$pipeline = function() {};
 		for ( $i = count( $this->middleware ) - 1; $i >= 0; $i-- )
 		{
 			$currentMiddleware = $this->middleware[$i];
-			$closure = function() use ($currentMiddleware, &$request, &$response, $nextMiddleware) {
-				$currentMiddleware->handle( $request, $response, $nextMiddleware );
+			$closure = function() use ($currentMiddleware, &$request, &$response, $pipeline) {
+				$currentMiddleware->handle( $request, $response, $pipeline );
 			};
-			array_unshift($processedMiddlewares, $closure);
-			$nextMiddleware = $closure;
-//			if ( array_key_exists( $i + 1, $this->middleware ) )
-//			{
-//				$currentMiddleware = $this->middleware[$i];
-//				$nextMiddlewareReference = $nextMiddleware[0];
-//				$nextCallback = function () use ( $currentMiddleware, &$request, &$response, $nextMiddlewareReference )
-//				{
-//					$currentMiddleware->handle( $request, $response, $nextMiddlewareReference );
-//				};
-//			} else
-//			{
-//				$nextCallback = function ()
-//				{
-//					// If this is the first iteration through $this->middleware, there isn't a next callback to call, so just pass an empty Closure so we don't need to do a null check
-//				};
-//			}
-//
-//			array_unshift( $nextMiddleware, $nextCallback );
+			$pipeline = $closure;
 		}
-		$processedMiddlewares[0]();
-//		$first = $this->middleware[0];
-//		$first->handle($request, $response, $nextMiddleware[0]);
-//		$nextMiddleware[0]();
-		//		var_dump($nextMiddleware);
-		//		for ( $i = 0; $i < count( $processedMiddleware ); $i++ )
-		//		{
-		//			$processedMiddleware[ $i ]->handle( $request, $response, $nextMiddleware[ $i ] );
-//				}
+		$pipeline();
 	}
 
 	/**
