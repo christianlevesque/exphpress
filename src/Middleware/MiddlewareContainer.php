@@ -66,6 +66,7 @@ class MiddlewareContainer
 			};
 		}
 
+		// Save the pipeline back to the MiddlewareContainer
 		$this->pipeline = $pipeline;
 
 		return $this;
