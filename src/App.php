@@ -80,9 +80,11 @@ class App
 		{
 			if ( array_key_exists( $i + 1, $this->middleware ) )
 			{
-				$nextCallback = function () use ( $i, &$request, &$response, &$nextMiddleware )
+				$currentMiddleware = $this->middleware[$i];
+				$nextMiddlewareReference = $nextMiddleware[0];
+				$nextCallback = function () use ( &$currentMiddleware, &$request, &$response, &$nextMiddlewareReference )
 				{
-					$this->middleware[ $i + 1 ]->handle( $request, $response, $nextMiddleware[ 0 ] );
+					$currentMiddleware->handle( $request, $response, $nextMiddlewareReference );
 				};
 			} else
 			{
