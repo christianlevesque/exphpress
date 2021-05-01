@@ -97,7 +97,10 @@ class App
 		}
 
 //		$this->middleware[ 0 ]->handle( $request, $response, $nextMiddleware[ 0 ] );
-		var_dump($nextMiddleware);
+		foreach ($nextMiddleware as $m) {
+			var_dump($m);
+			echo "\n\n";
+		};
 		//		for ( $i = 0; $i < count( $processedMiddleware ); $i++ )
 		//		{
 		//			$processedMiddleware[ $i ]->handle( $request, $response, $nextMiddleware[ $i ] );
