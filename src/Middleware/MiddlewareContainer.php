@@ -37,6 +37,7 @@ class MiddlewareContainer
 	 */
 	public function register( MiddlewareInterface $m ): MiddlewareContainer
 	{
+		// Fill the array backwards so we don't have to reverse the array when building the pipeline
 		array_unshift( $this->middleware, $m );
 		return $this;
 	}
@@ -52,7 +53,6 @@ class MiddlewareContainer
 	public function buildPipeline( Request $request, Response $response ): MiddlewareContainer
 	{
 		// Wrap each new middleware around the existing pipeline
-		// Start from the end of the array so we can have each next() call ready to go
 		foreach ( $this->middleware as $currentMiddleware )
 		{
 			// Grab a local reference to the pipeline so the closure can pull it into scope
