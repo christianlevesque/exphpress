@@ -78,7 +78,7 @@ class App
 
 		// Wrap each new middleware around the existing pipeline
 		// Start from the end of the array so we can have each next() call ready to go
-		foreach ( array_reverse($this->middleware) as $currentMiddleware )
+		foreach ( array_reverse( $this->middleware ) as $currentMiddleware )
 		{
 			// The closure needs to reference the current middleware, the request, the response, and the existing pipeline
 			// The existing pipeline will be used as next() for the new pipeline
