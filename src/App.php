@@ -99,10 +99,7 @@ class App
 		}
 
 //		$this->middleware[ 0 ]->handle( $request, $response, $nextMiddleware[ 0 ] );
-		foreach ($nextMiddleware as $m) {
-			var_dump($m);
-			echo "\n\n";
-		};
+		json_encode($nextMiddleware);
 		//		for ( $i = 0; $i < count( $processedMiddleware ); $i++ )
 		//		{
 		//			$processedMiddleware[ $i ]->handle( $request, $response, $nextMiddleware[ $i ] );
