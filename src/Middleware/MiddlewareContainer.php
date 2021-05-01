@@ -22,7 +22,7 @@ class MiddlewareContainer
 	{
 		// The pipeline starts with an empty closure
 		// This allows developers to create their middleware without worrying about a null check on next(), because it's guaranteed to never be null
-		// I'll balance a single unnecessary function call over potentially dozens or hundreds of null checks
+		// I'll take a single unnecessary function call over potentially dozens or hundreds of null checks
 		$this->pipeline = function ()
 		{
 		};
