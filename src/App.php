@@ -86,7 +86,6 @@ class App
 			}
 
 			array_unshift( $nextMiddleware, $nextCallback );
-			array_unshift( $processedMiddleware, $this->middleware[ $i ] );
 		}
 
 		$nextMiddleware[0]();
