@@ -25,11 +25,6 @@ class App
 	 */
 	private array $middleware = [];
 
-	/**
-	 * @var Closure[] Next Middleware container
-	 */
-	private array $nextMiddlewares = [];
-
 	private function __construct( string $domain )
 	{
 		$this->messages = require __DIR__ . '/config/strings.php';
@@ -72,26 +67,40 @@ class App
 	 */
 	public function execute(): void
 	{
-		$request  = $this->request;
-		$response = $this->response;
+		$request             = $this->request;
+		$response            = $this->response;
+		$processedMiddleware = [];
 
-		for ( $i = 0; $i < count( $this->middleware ); $i++ )
+		/**
+		 * @var Closure[]
+		 */
+		$nextMiddleware = [];
+
+		for ( $i = count( $this->middleware ) - 1; $i >= 0; $i-- )
 		{
 			if ( array_key_exists( $i + 1, $this->middleware ) )
 			{
-				$next = function () use ( $i, &$request, &$response )
+				$nextCallback = function () use ( $i, &$request, &$response, &$nextMiddleware )
 				{
-					// TODO: figure out how to construct each next() (probably will have to traverse the middleware container backwards, construct each next and unpush it on an array, then traverse the array normally when calling the middleware
-					$this->middleware[ $i + 1 ]->handle( $request, $response );
+					$this->middleware[ $i + 1 ]->handle( $request, $response, $nextMiddleware[ 0 ] );
 				};
 			} else
 			{
-				$next = function ()
+				$nextCallback = function ()
 				{
-
+					// If this is the first iteration through $this->middleware, there isn't a next callback to call, so just pass an empty Closure so we don't need to do a null check
 				};
 			}
+
+			array_unshift( $nextMiddleware, $nextCallback );
+			array_unshift( $processedMiddleware, $this->middleware[ $i ] );
 		}
+
+		$processedMiddleware[ 0 ]->handle( $request, $response, $nextMiddleware[ 0 ] );
+		//		for ( $i = 0; $i < count( $processedMiddleware ); $i++ )
+		//		{
+		//			$processedMiddleware[ $i ]->handle( $request, $response, $nextMiddleware[ $i ] );
+		//		}
 	}
 
 	/**
