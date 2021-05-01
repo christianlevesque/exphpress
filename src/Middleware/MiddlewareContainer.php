@@ -52,21 +52,21 @@ class MiddlewareContainer
 	 */
 	public function buildPipeline( Request $request, Response $response ): MiddlewareContainer
 	{
+		// Grab a local reference to the pipeline so the closure can pull it into scope
+		$pipeline = $this->pipeline;
+
 		// Wrap each new middleware around the existing pipeline
 		foreach ( $this->middleware as $currentMiddleware )
 		{
-			// Grab a local reference to the pipeline so the closure can pull it into scope
-			$pipeline = $this->pipeline;
-
 			// The closure needs to reference the current middleware, the request, the response, and the existing pipeline
 			// The existing pipeline will be used as next() for the new pipeline
 			$pipeline = function () use ( $currentMiddleware, &$request, &$response, $pipeline )
 			{
 				$currentMiddleware->handle( $request, $response, $pipeline );
 			};
-
-			$this->pipeline = $pipeline;
 		}
+
+		$this->pipeline = $pipeline;
 
 		return $this;
 	}
