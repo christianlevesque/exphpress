@@ -64,6 +64,8 @@ class MiddlewareContainer
 			{
 				$currentMiddleware->handle( $request, $response, $pipeline );
 			};
+
+			$this->pipeline = $pipeline;
 		}
 
 		return $this;
