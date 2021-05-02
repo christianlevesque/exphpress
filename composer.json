@@ -14,7 +14,7 @@
         }
     ],
     "require-dev": {
-        "vendor/phpunit/phpunit": "^9"
+        "phpunit/phpunit": "^9"
     },
 	"autoload": {
 		"psr-4": {
