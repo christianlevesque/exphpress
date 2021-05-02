@@ -16,23 +16,12 @@ class App
 	private Response   $response;
 
 	/**
-	 * @var string[] App-level status and error messages
-	 */
-	private array $messages;
-
-	/**
 	 * @var MiddlewareContainer Middleware container
 	 */
 	private MiddlewareContainer $middleware;
 
 	private function __construct( string $domain )
 	{
-		$this->messages = require __DIR__ . '/config/strings.php';
-
-		if ( !$domain && strcmp( $domain, '' ) !== 0 )
-		{
-			throw new InvalidArgumentException( sprintf( $this->messages[ 'required_arg' ], 'domain' ) );
-		}
 
 		$this->router     = Router::getInstance();
 		$this->request    = new Request;
