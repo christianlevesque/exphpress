@@ -18,7 +18,7 @@ class MiddlewareContainer
 	 */
 	private Closure $pipeline;
 
-	public function __construct(Closure $initialPipeline)
+	public function __construct( Closure $initialPipeline )
 	{
 		$this->pipeline = $initialPipeline;
 	}
@@ -46,7 +46,7 @@ class MiddlewareContainer
 	}
 
 	/**
-	 * Executes all middlewares registered on the container
+	 * Constructs the middleware pipeline using all the middlewares on the container
 	 *
 	 * @param Request  $request  The HTTP Request
 	 * @param Response $response The HTTP Response
@@ -75,6 +75,9 @@ class MiddlewareContainer
 		return $this;
 	}
 
+	/**
+	 * Executes the middleware pipeline
+	 */
 	public function execute(): void
 	{
 		( $this->pipeline )();
