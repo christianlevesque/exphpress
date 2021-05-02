@@ -66,6 +66,8 @@ class Request
 	}
 
 	/**
+	 * Sets a new or existing query parameter value
+	 *
 	 * @param string $key   The query parameter to set
 	 * @param mixed  $value The value of the query parameter
 	 *
