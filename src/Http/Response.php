@@ -251,6 +251,5 @@ class Response
 		$this->sendCookies();
 		$this->sendHeaders();
 		echo $this->getResponseBody();
-		exit();
 	}
 }
