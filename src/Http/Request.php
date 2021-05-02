@@ -94,6 +94,20 @@ class Request
 	}
 
 	/**
+	 * Sets a new or existing request parameter value
+	 *
+	 * @param string $key
+	 * @param mixed  $value
+	 *
+	 * @return $this
+	 */
+	public function setRequestParameter( string $key, $value ): Request
+	{
+		$this->requestParameterProvider->set( $key, $value );
+		return $this;
+	}
+
+	/**
 	 * Getter for the passed cookie name
 	 *
 	 * This method will throw an error if

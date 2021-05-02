@@ -110,6 +110,32 @@ class RequestTest extends TestCase
 		$this->request->getRequestParameter( '' );
 	}
 
+	public function testSetRequestParameterReturnsRequest(): void
+	{
+		$result = $this->request->setRequestParameterProvider( new WritableArrayValueProvider( [] ) )
+								->setRequestParameter( '', true );
+		$this->assertInstanceOf( Request::class, $result );
+	}
+
+	public function testSetRequestParameterSetsQueryParameterIfQueryParameterProviderSet(): void
+	{
+		$key      = 'the question';
+		$expected = 42;
+		$this->request->setRequestParameterProvider( new WritableArrayValueProvider( [] ) )
+					  ->setRequestParameter( $key, $expected );
+
+		$value = $this->request->getRequestParameter( $key );
+
+		$this->assertIsNumeric( $value );
+		$this->assertEquals( $expected, $value );
+	}
+
+	public function testSetRequestParameterThrowsIfQueryParameterProviderNotSet(): void
+	{
+		$this->expectErrorMessage( 'Typed property Crossview\Exphpress\Http\Request::$requestParameterProvider must not be accessed before initialization' );
+		$this->request->setRequestParameter( '', true );
+	}
+
 	public function testGetCookieReturnsCookieIfCookieProviderSet(): void
 	{
 		$this->request->setCookieProvider( new ArrayValueProvider( [ 'auth_token' => 'abc123' ] ) );
