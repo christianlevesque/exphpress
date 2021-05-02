@@ -2,30 +2,30 @@
 
 namespace Crossview\Exphpress\Http;
 
-use Crossview\Exphpress\Providers\ArrayValueProvider;
-use Crossview\Exphpress\Providers\WritableArrayValueProvider;
+use Crossview\Exphpress\Providers\ReadableProvider;
+use Crossview\Exphpress\Providers\ReadableWritableProvider;
 
 class Request
 {
 	/**
-	 * @var ArrayValueProvider The $_SERVER ArrayValueProvider
+	 * @var ReadableProvider Represents the $_SERVER array
 	 */
-	private ArrayValueProvider $serverProvider;
+	private ReadableProvider $serverProvider;
 
 	/**
-	 * @var ArrayValueProvider The $_COOKIE ArrayValueProvider
+	 * @var ReadableProvider Represents the $_COOKIE array
 	 */
-	private ArrayValueProvider $cookieProvider;
+	private ReadableProvider $cookieProvider;
 
 	/**
-	 * @var WritableArrayValueProvider A provider for URL query parameters
+	 * @var ReadableWritableProvider A provider for URL query parameters
 	 */
-	private WritableArrayValueProvider $queryParameterProvider;
+	private ReadableWritableProvider $queryParameterProvider;
 
 	/**
-	 * @var WritableArrayValueProvider A provider for request body parameters
+	 * @var ReadableWritableProvider A provider for request body parameters
 	 */
-	private WritableArrayValueProvider $requestParameterProvider;
+	private ReadableWritableProvider $requestParameterProvider;
 
 	/**
 	 * Fetches the HTTP request method for the current request
@@ -52,13 +52,13 @@ class Request
 	/**
 	 * Getter for the passed URI parameter
 	 *
-	 * This is internally backed by the ArrayValueProvider::getRaw method. If the field is present in the URL query parameters, its value is returned as it appears. If not, null is returned.
+	 * If the field is present in the URL query parameters, its value is returned as it appears. If not, null is returned.
 	 *
 	 * @param string $parameter The URI query parameter to retrieve
 	 *
 	 * @return mixed|null
 	 *
-	 * @see \Crossview\Exphpress\Providers\ArrayValueProvider::getRaw
+	 * @see ReadableProvider::getRaw
 	 */
 	public function getQueryParameter( string $parameter )
 	{
@@ -72,6 +72,8 @@ class Request
 	 * @param mixed  $value The value of the query parameter
 	 *
 	 * @return $this
+	 *
+	 * @see ReadableWritableProvider::set
 	 */
 	public function setQueryParameter( string $key, $value ): Request
 	{
@@ -82,13 +84,13 @@ class Request
 	/**
 	 * Getter for the passed request body parameter
 	 *
-	 * This is internally backed by the ArrayValueProvider::getRaw method. If the field is present in the request body, its value is returned as it appears. If not, null is returned.
+	 * If the field is present in the request body, its value is returned as it appears. If not, null is returned.
 	 *
 	 * @param string $parameter The request body parameter to retrieve
 	 *
 	 * @return mixed|null
 	 *
-	 * @see \Crossview\Exphpress\Providers\ArrayValueProvider::getRaw
+	 * @see ReadableProvider::getRaw
 	 */
 	public function getRequestParameter( string $parameter )
 	{
@@ -102,6 +104,8 @@ class Request
 	 * @param mixed  $value
 	 *
 	 * @return $this
+	 *
+	 * @see ReadableWritableProvider::set
 	 */
 	public function setRequestParameter( string $key, $value ): Request
 	{
@@ -112,15 +116,13 @@ class Request
 	/**
 	 * Getter for the passed cookie name
 	 *
-	 * This method will throw an error if
-	 *
-	 * This is internally backed by the ArrayValueProvider::get method. If the requested cookie is present, its value is returned. If not, null is returned.
+	 * If the requested cookie is present, its value is returned. If not, null is returned.
 	 *
 	 * @param string $name The name of the cookie to retrieve
 	 *
 	 * @return string|null
 	 *
-	 * @see \Crossview\Exphpress\Providers\ArrayValueProvider::get
+	 * @see ReadableProvider::get
 	 */
 	public function getCookie( string $name ): ?string
 	{
@@ -130,9 +132,9 @@ class Request
 	/**
 	 * Gets the registered Server Provider
 	 *
-	 * @return \Crossview\Exphpress\Providers\ArrayValueProvider|null
+	 * @return ReadableProvider|null
 	 */
-	public function getServerProvider(): ?ArrayValueProvider
+	public function getServerProvider(): ?ReadableProvider
 	{
 		if ( isset( $this->serverProvider ) )
 		{
@@ -147,11 +149,11 @@ class Request
 	 *
 	 * This method only sets the Server Provider if it has not already been set. Exphpress-provided middleware calls this method, so there's no reason for developers to call it.
 	 *
-	 * @param ArrayValueProvider $provider The Server Provider to register
+	 * @param ReadableProvider $provider The Server Provider to register
 	 *
 	 * @return $this
 	 */
-	public function setServerProvider( ArrayValueProvider $provider ): Request
+	public function setServerProvider( ReadableProvider $provider ): Request
 	{
 		if ( !isset( $this->serverProvider ) )
 		{
@@ -164,9 +166,9 @@ class Request
 	/**
 	 * Gets the Query Parameter Provider
 	 *
-	 * @return \Crossview\Exphpress\Providers\WritableArrayValueProvider|null
+	 * @return ReadableWritableProvider|null
 	 */
-	public function getQueryParameterProvider(): ?WritableArrayValueProvider
+	public function getQueryParameterProvider(): ?ReadableWritableProvider
 	{
 		if ( isset( $this->queryParameterProvider ) )
 		{
@@ -181,11 +183,11 @@ class Request
 	 *
 	 * This method only sets the Query Parameter Provider if it has not already been set. Exphpress-provided middleware calls this method, so there's no reason for developers to call it.
 	 *
-	 * @param WritableArrayValueProvider $provider The Query Parameter Provider to register
+	 * @param ReadableWritableProvider $provider The Query Parameter Provider to register
 	 *
 	 * @return $this
 	 */
-	public function setQueryParameterProvider( WritableArrayValueProvider $provider ): Request
+	public function setQueryParameterProvider( ReadableWritableProvider $provider ): Request
 	{
 		if ( !isset( $this->queryParameterProvider ) )
 		{
@@ -198,9 +200,9 @@ class Request
 	/**
 	 * Gets the Request Parameter Provider
 	 *
-	 * @return \Crossview\Exphpress\Providers\WritableArrayValueProvider|null
+	 * @return ReadableWritableProvider|null
 	 */
-	public function getRequestParameterProvider(): ?WritableArrayValueProvider
+	public function getRequestParameterProvider(): ?ReadableWritableProvider
 	{
 		if ( isset( $this->requestParameterProvider ) )
 		{
@@ -215,11 +217,11 @@ class Request
 	 *
 	 * This method only sets the Request Parameter Provider if it has not already been set. Exphpress-provided middleware calls this method, so there's no reason for developers to call it.
 	 *
-	 * @param WritableArrayValueProvider $provider The Request Parameter Provider to register
+	 * @param ReadableWritableProvider $provider The Request Parameter Provider to register
 	 *
 	 * @return $this
 	 */
-	public function setRequestParameterProvider( WritableArrayValueProvider $provider ): Request
+	public function setRequestParameterProvider( ReadableWritableProvider $provider ): Request
 	{
 		if ( !isset( $this->requestParameterProvider ) )
 		{
@@ -232,9 +234,9 @@ class Request
 	/**
 	 * Gets the Cookie Provider
 	 *
-	 * @return \Crossview\Exphpress\Providers\ArrayValueProvider|null
+	 * @return ReadableProvider|null
 	 */
-	public function getCookieProvider(): ?ArrayValueProvider
+	public function getCookieProvider(): ?ReadableProvider
 	{
 		if ( isset( $this->cookieProvider ) )
 		{
@@ -249,11 +251,11 @@ class Request
 	 *
 	 * This method only sets the Cookie Provider if it has not already been set. Exphpress does not provide a default Cookie Provider; a Cookie Provider must be configured here before using cookies in the Request.
 	 *
-	 * @param ArrayValueProvider $provider The Cookie Provider to register
+	 * @param ReadableProvider $provider The Cookie Provider to register
 	 *
 	 * @return $this
 	 */
-	public function setCookieProvider( ArrayValueProvider $provider ): Request
+	public function setCookieProvider( ReadableProvider $provider ): Request
 	{
 		if ( !isset( $this->cookieProvider ) )
 		{

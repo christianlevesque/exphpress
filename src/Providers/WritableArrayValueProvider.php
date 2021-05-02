@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Crossview\Exphpress\Providers;
 
 /**
@@ -10,18 +9,8 @@ namespace Crossview\Exphpress\Providers;
  *
  * @package Crossview\Exphpress\Providers
  */
-class WritableArrayValueProvider extends ArrayValueProvider
+class WritableArrayValueProvider extends ArrayValueProvider implements ReadableWritableProvider
 {
-	/**
-	 * Sets arbitrary key => value pairs in the backing array
-	 *
-	 * This method provides a fluent API.
-	 *
-	 * @param string|int $key   The key to create in the array
-	 * @param mixed      $value The value to set in the array
-	 *
-	 * @return $this
-	 */
 	public function set( $key, $value ): WritableArrayValueProvider
 	{
 		$this->values[ $key ] = $value;

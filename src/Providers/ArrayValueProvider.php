@@ -1,10 +1,8 @@
 <?php
 
-
 namespace Crossview\Exphpress\Providers;
 
-
-class ArrayValueProvider
+class ArrayValueProvider implements ReadableProvider
 {
 	protected array $values;
 
@@ -13,15 +11,6 @@ class ArrayValueProvider
 		$this->values = $input;
 	}
 
-	/**
-	 * Gets a value from the backing array, or null if index doesn't exist
-	 *
-	 * ArrayValueProvider::get casts the value to a string before returning. If you desire the original datatype to be preserved, use ArrayValueProvider::getRaw.
-	 *
-	 * @param string $index The index of the value to retrieve
-	 *
-	 * @return string|null
-	 */
 	public function get( string $index ): ?string
 	{
 		if ( array_key_exists( $index, $this->values ) )
@@ -32,13 +21,6 @@ class ArrayValueProvider
 		return null;
 	}
 
-	/**
-	 * Gets a value from the backing array with its original datatype preserved, or null if index doesn't exist
-	 *
-	 * @param string $index The index of the value to retrieve
-	 *
-	 * @return mixed|null
-	 */
 	public function getRaw( string $index )
 	{
 		if ( array_key_exists( $index, $this->values ) )
