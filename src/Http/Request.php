@@ -128,6 +128,21 @@ class Request
 	}
 
 	/**
+	 * Gets the registered Server Provider
+	 *
+	 * @return \Crossview\Exphpress\Providers\ArrayValueProvider|null
+	 */
+	public function getServerProvider(): ?ArrayValueProvider
+	{
+		if ( isset( $this->serverProvider ) )
+		{
+			return $this->serverProvider;
+		}
+
+		return null;
+	}
+
+	/**
 	 * Registers the Server Provider
 	 *
 	 * This method only sets the Server Provider if it has not already been set. Exphpress-provided middleware calls this method, so there's no reason for developers to call it.
@@ -144,6 +159,21 @@ class Request
 		}
 
 		return $this;
+	}
+
+	/**
+	 * Gets the Query Parameter Provider
+	 *
+	 * @return \Crossview\Exphpress\Providers\WritableArrayValueProvider|null
+	 */
+	public function getQueryParameterProvider(): ?WritableArrayValueProvider
+	{
+		if ( isset( $this->queryParameterProvider ) )
+		{
+			return $this->queryParameterProvider;
+		}
+
+		return null;
 	}
 
 	/**
@@ -166,6 +196,21 @@ class Request
 	}
 
 	/**
+	 * Gets the Request Parameter Provider
+	 *
+	 * @return \Crossview\Exphpress\Providers\WritableArrayValueProvider|null
+	 */
+	public function getRequestParameterProvider(): ?WritableArrayValueProvider
+	{
+		if ( isset( $this->requestParameterProvider ) )
+		{
+			return $this->requestParameterProvider;
+		}
+
+		return null;
+	}
+
+	/**
 	 * Registers the Request Parameter Provider
 	 *
 	 * This method only sets the Request Parameter Provider if it has not already been set. Exphpress-provided middleware calls this method, so there's no reason for developers to call it.
@@ -182,6 +227,21 @@ class Request
 		}
 
 		return $this;
+	}
+
+	/**
+	 * Gets the Cookie Provider
+	 *
+	 * @return \Crossview\Exphpress\Providers\ArrayValueProvider|null
+	 */
+	public function getCookieProvider(): ?ArrayValueProvider
+	{
+		if ( isset( $this->cookieProvider ) )
+		{
+			return $this->cookieProvider;
+		}
+
+		return null;
 	}
 
 	/**

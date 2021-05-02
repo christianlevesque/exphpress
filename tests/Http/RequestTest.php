@@ -152,6 +152,20 @@ class RequestTest extends TestCase
 		$this->request->getCookie( '' );
 	}
 
+	public function testGetServerProviderReturnsServerProviderIfExists(): void
+	{
+		$this->request->setServerProvider( new ArrayValueProvider( [] ) );
+		$result = $this->request->getServerProvider();
+
+		$this->assertInstanceOf( ArrayValueProvider::class, $result );
+	}
+
+	public function testGetServerProviderReturnsNullIfNotExists(): void
+	{
+		$result = $this->request->getServerProvider();
+		$this->assertNull( $result );
+	}
+
 	public function testSetServerProviderOnlySetsServerProviderOnce(): void
 	{
 		$expected = 'GET';
@@ -161,6 +175,20 @@ class RequestTest extends TestCase
 		$result = $this->request->getMethod();
 
 		$this->assertEquals( $expected, $result );
+	}
+
+	public function testGetQueryParameterProviderReturnsQueryParameterProviderIfExists(): void
+	{
+		$this->request->setQueryParameterProvider( new WritableArrayValueProvider( [] ) );
+		$result = $this->request->getQueryParameterProvider();
+
+		$this->assertInstanceOf( WritableArrayValueProvider::class, $result );
+	}
+
+	public function testGetQueryParameterProviderReturnsNullIfNotExists(): void
+	{
+		$result = $this->request->getQueryParameterProvider();
+		$this->assertNull( $result );
 	}
 
 	public function testSetQueryParameterProviderOnlySetsQueryParameterProviderOnce(): void
@@ -174,6 +202,20 @@ class RequestTest extends TestCase
 		$this->assertEquals( $expected, $result );
 	}
 
+	public function testGetRequestParameterProviderReturnsRequestParameterProviderIfExists(): void
+	{
+		$this->request->setRequestParameterProvider( new WritableArrayValueProvider( [] ) );
+		$result = $this->request->getRequestParameterProvider();
+
+		$this->assertInstanceOf( WritableArrayValueProvider::class, $result );
+	}
+
+	public function testGetRequestParameterProviderReturnsNullIfNotExists(): void
+	{
+		$result = $this->request->getRequestParameterProvider();
+		$this->assertNull( $result );
+	}
+
 	public function testSetRequestParameterProviderOnlySetsRequestParameterProviderOnce(): void
 	{
 		$expected = 42;
@@ -183,6 +225,20 @@ class RequestTest extends TestCase
 		$result = $this->request->getRequestParameter( 'old_id' );
 
 		$this->assertEquals( $expected, $result );
+	}
+
+	public function testGetCookieProviderReturnsCookieProviderIfExists(): void
+	{
+		$this->request->setCookieProvider( new ArrayValueProvider( [] ) );
+		$result = $this->request->getCookieProvider();
+
+		$this->assertInstanceOf( ArrayValueProvider::class, $result );
+	}
+
+	public function testGetCookieProviderReturnsNullIfNotExists(): void
+	{
+		$result = $this->request->getCookieProvider();
+		$this->assertNull( $result );
 	}
 
 	public function testSetCookieProviderOnlySetsCookieProviderOnce(): void
