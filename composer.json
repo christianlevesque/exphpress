@@ -14,8 +14,9 @@
         }
     ],
     "require-dev": {
-        "phpunit/phpunit": "^9"
-    },
+        "phpunit/phpunit": "^9",
+		"ext-xdebug": "*"
+	},
 	"autoload": {
 		"psr-4": {
 			"Crossview\\Exphpress\\": "src/"
