@@ -7,27 +7,27 @@ class Response
 	/**
 	 * @var int The HTTP Status Code to send along with the payload. Defaults to 200 in the constructor.
 	 */
-	private int $responseCode;
+	protected int $responseCode;
 
 	/**
 	 * @var string The main body of the payload. Defaults to an empty string in the constructor. The body may be overwritten or appended to, depending on which method is used to interact with the field.
 	 */
-	private string $responseBody;
+	protected string $responseBody;
 
 	/**
 	 * @var array A list of headers to be sent with the payload, stored as key => value pairs. The headers here will be processed as the payload is sent.
 	 */
-	private array $headers;
+	protected array $headers;
 
 	/**
 	 * @var array A list of cookies to be sent with the payload, stored as key => value pairs. The cookies here will be processed as the payload is sent.
 	 */
-	private $cookies;
+	protected $cookies;
 
 	/**
 	 * @var array The default cookie options, used by Response::setCookie() and Response::unsetCookie(). Can be overriden by passing an associative array of options to either method.
 	 */
-	private $cookieOptions;
+	protected $cookieOptions;
 
 	/**
 	 * Returns the currently set HTTP Status Code

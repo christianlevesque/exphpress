@@ -7,16 +7,16 @@ use Crossview\Exphpress\Http\Response;
 
 class Router
 {
-	private static Router $instance;
-	private array         $uri        = [];
-	private array         $routes     = [];
-	private array         $parameters = [];
-	private Route         $matchedRoute;
+	protected static Router $instance;
+	protected array         $uri        = [];
+	protected array         $routes     = [];
+	protected array         $parameters = [];
+	protected Route         $matchedRoute;
 
 	/**
 	 * Router constructor
 	 */
-	private function __construct()
+	protected function __construct()
 	{
 	}
 
@@ -83,7 +83,7 @@ class Router
 	 *
 	 * @return array Returns the exploded URI. If the Route or requested URI is for the home directory ('/'), the array will be empty
 	 */
-	private function explodeRoute( string $uri ): array
+	protected function explodeRoute( string $uri ): array
 	{
 		$hasQuestionMark = strpos( $uri, '?' );
 
@@ -125,7 +125,7 @@ class Router
 	 *
 	 * @return array|bool Returns an array containing any parameters matched by the URI. If no parameters were matched but the URI and Route match, the array will be empty. If the URI and Route don't match, returns false.
 	 */
-	private function matchRoute( array $route, array $uri )
+	protected function matchRoute( array $route, array $uri )
 	{
 		$parameters  = [];
 		$routeLength = count( $route );
@@ -173,7 +173,7 @@ class Router
 	/**
 	 * Public method to execute Route matches
 	 *
-	 * Calls all private methods used to match a Route to the request URI.
+	 * Calls all protected methods used to match a Route to the request URI.
 	 *
 	 * @param Request  $request
 	 * @param Response $response

@@ -9,17 +9,17 @@ use Crossview\Exphpress\Middleware\MiddlewareInterface;
 
 class App
 {
-	private static App $instance;
-	private Router     $router;
-	private Request    $request;
-	private Response   $response;
+	protected static App $instance;
+	protected Router     $router;
+	protected Request    $request;
+	protected Response   $response;
 
 	/**
 	 * @var MiddlewareContainer Middleware container
 	 */
-	private MiddlewareContainer $middleware;
+	protected MiddlewareContainer $middleware;
 
-	private function __construct()
+	protected function __construct()
 	{
 
 		$this->router     = Router::getInstance();

@@ -11,12 +11,12 @@ class MiddlewareContainer
 	/**
 	 * @var MiddlewareInterface[] Container for middlewares
 	 */
-	private array $middleware = [];
+	protected array $middleware = [];
 
 	/**
 	 * @var Closure The middleware pipeline
 	 */
-	private Closure $pipeline;
+	protected Closure $pipeline;
 
 	public function __construct( Closure $initialPipeline )
 	{

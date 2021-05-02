@@ -12,17 +12,17 @@ class Route
 	/**
 	 * @var string The URI this Route represents
 	 */
-	private string $route;
+	protected string $route;
 
 	/**
 	 * @var array An associative array representing HTTP method => handler pairs
 	 */
-	private array $handlers;
+	protected array $handlers;
 
 	/**
 	 * @var string[] An array representing valid HTTP methods. This array also includes 'ANY', which is used to respond to an otherwise-unhandled HTTP method
 	 */
-	private array $methods = [
+	protected array $methods = [
 		"ANY",
 		"CONNECT",
 		"DELETE",

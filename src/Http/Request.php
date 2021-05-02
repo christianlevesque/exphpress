@@ -10,22 +10,22 @@ class Request
 	/**
 	 * @var ReadableProvider Represents the $_SERVER array
 	 */
-	private ReadableProvider $serverProvider;
+	protected ReadableProvider $serverProvider;
 
 	/**
 	 * @var ReadableProvider Represents the $_COOKIE array
 	 */
-	private ReadableProvider $cookieProvider;
+	protected ReadableProvider $cookieProvider;
 
 	/**
 	 * @var ReadableWritableProvider A provider for URL query parameters
 	 */
-	private ReadableWritableProvider $queryParameterProvider;
+	protected ReadableWritableProvider $queryParameterProvider;
 
 	/**
 	 * @var ReadableWritableProvider A provider for request body parameters
 	 */
-	private ReadableWritableProvider $requestParameterProvider;
+	protected ReadableWritableProvider $requestParameterProvider;
 
 	/**
 	 * Fetches the HTTP request method for the current request
