@@ -3,7 +3,6 @@
 namespace Crossview\Exphpress;
 
 use Crossview\Exphpress\Middleware\MiddlewareContainer;
-use \InvalidArgumentException;
 use Crossview\Exphpress\Http\Request;
 use Crossview\Exphpress\Http\Response;
 use Crossview\Exphpress\Middleware\MiddlewareInterface;
