@@ -71,10 +71,8 @@ class Response
 
 	/**
 	 * Response constructor.
-	 *
-	 * @param string $domain The domain of the current application, used to set the 'domain' option of application cookies
 	 */
-	public function __construct( string $domain )
+	public function __construct()
 	{
 		// TODO: Allow configuration of the defaults found here
 		$this->responseCode  = 200;
@@ -84,7 +82,7 @@ class Response
 		$this->cookieOptions = [
 			'expires'  => time() + 60 * 60 * 24,
 			'path'     => '/',
-			'domain'   => $domain,
+			'domain'   => '',
 			'secure'   => true,
 			'httponly' => true,
 			'samesite' => 'lax'

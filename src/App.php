@@ -20,20 +20,20 @@ class App
 	 */
 	private MiddlewareContainer $middleware;
 
-	private function __construct( string $domain )
+	private function __construct()
 	{
 
 		$this->router     = Router::getInstance();
 		$this->request    = new Request;
-		$this->response   = new Response( $domain );
-		$this->middleware = new MiddlewareContainer();
+		$this->response   = new Response();
+		$this->middleware = new MiddlewareContainer(function() {});
 	}
 
-	public static function getInstance( string $domain ): App
+	public static function getInstance(): App
 	{
 		if ( !isset( self::$instance ) )
 		{
-			self::$instance = new self( $domain ?? '' );
+			self::$instance = new self();
 		}
 
 		return self::$instance;
