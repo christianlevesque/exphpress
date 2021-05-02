@@ -18,14 +18,14 @@ class Request
 	private ArrayValueProvider $cookieProvider;
 
 	/**
-	 * @var ArrayValueProvider A provider for URL query parameters
+	 * @var WritableArrayValueProvider A provider for URL query parameters
 	 */
-	private ArrayValueProvider $queryParameterProvider;
+	private WritableArrayValueProvider $queryParameterProvider;
 
 	/**
-	 * @var ArrayValueProvider A provider for request body parameters
+	 * @var WritableArrayValueProvider A provider for request body parameters
 	 */
-	private ArrayValueProvider $requestParameterProvider;
+	private WritableArrayValueProvider $requestParameterProvider;
 
 	/**
 	 * Fetches the HTTP request method for the current request
@@ -44,8 +44,9 @@ class Request
 	 *
 	 * @return mixed|null
 	 */
-	public function getServerParameter(string $parameter) {
-		return $this->serverProvider->getRaw($parameter);
+	public function getServerParameter( string $parameter )
+	{
+		return $this->serverProvider->getRaw( $parameter );
 	}
 
 	/**
@@ -62,6 +63,18 @@ class Request
 	public function getQueryParameter( string $parameter )
 	{
 		return $this->queryParameterProvider->getRaw( $parameter );
+	}
+
+	/**
+	 * @param string $key   The query parameter to set
+	 * @param mixed  $value The value of the query parameter
+	 *
+	 * @return $this
+	 */
+	public function setQueryParameter( string $key, $value ): Request
+	{
+		$this->queryParameterProvider->set( $key, $value );
+		return $this;
 	}
 
 	/**
@@ -122,11 +135,11 @@ class Request
 	 *
 	 * This method only sets the Query Parameter Provider if it has not already been set. Exphpress-provided middleware calls this method, so there's no reason for developers to call it.
 	 *
-	 * @param ArrayValueProvider $provider The Query Parameter Provider to register
+	 * @param WritableArrayValueProvider $provider The Query Parameter Provider to register
 	 *
 	 * @return $this
 	 */
-	public function setQueryParameterProvider( ArrayValueProvider $provider ): Request
+	public function setQueryParameterProvider( WritableArrayValueProvider $provider ): Request
 	{
 		if ( !isset( $this->queryParameterProvider ) )
 		{
@@ -141,11 +154,11 @@ class Request
 	 *
 	 * This method only sets the Request Parameter Provider if it has not already been set. Exphpress-provided middleware calls this method, so there's no reason for developers to call it.
 	 *
-	 * @param ArrayValueProvider $provider The Request Parameter Provider to register
+	 * @param WritableArrayValueProvider $provider The Request Parameter Provider to register
 	 *
 	 * @return $this
 	 */
-	public function setRequestParameterProvider( ArrayValueProvider $provider ): Request
+	public function setRequestParameterProvider( WritableArrayValueProvider $provider ): Request
 	{
 		if ( !isset( $this->requestParameterProvider ) )
 		{

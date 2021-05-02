@@ -68,6 +68,32 @@ class RequestTest extends TestCase
 		$this->request->getQueryParameter( '' );
 	}
 
+	public function testSetQueryParameterReturnsRequest(): void
+	{
+		$result = $this->request->setQueryParameterProvider( new WritableArrayValueProvider( [] ) )
+								->setQueryParameter( '', true );
+		$this->assertInstanceOf( Request::class, $result );
+	}
+
+	public function testSetQueryParameterSetsQueryParameterIfQueryParameterProviderSet(): void
+	{
+		$key      = 'the question';
+		$expected = 42;
+		$this->request->setQueryParameterProvider( new WritableArrayValueProvider( [] ) )
+					  ->setQueryParameter( $key, $expected );
+
+		$value = $this->request->getQueryParameter( $key );
+
+		$this->assertIsNumeric( $value );
+		$this->assertEquals( $expected, $value );
+	}
+
+	public function testSetQueryParameterThrowsIfQueryParameterProviderNotSet(): void
+	{
+		$this->expectErrorMessage( 'Typed property Crossview\Exphpress\Http\Request::$queryParameterProvider must not be accessed before initialization' );
+		$this->request->setQueryParameter( '', true );
+	}
+
 	public function testGetRequestParameterReturnsParameterIfRequestParameterProviderSet(): void
 	{
 		$this->request->setRequestParameterProvider( new WritableArrayValueProvider( [ 'old_id' => 84 ] ) );
