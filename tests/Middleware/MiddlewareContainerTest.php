@@ -7,16 +7,23 @@ use Crossview\Exphpress\Http\Request;
 use Crossview\Exphpress\Http\Response;
 use Crossview\Exphpress\Middleware\MiddlewareContainer;
 use Crossview\Exphpress\Middleware\MiddlewareInterface;
+use Crossview\Exphpress\Providers\ArrayValueProvider;
+use Crossview\Exphpress\Providers\WritableArrayValueProvider;
 use PHPUnit\Framework\TestCase;
 
 class MiddlewareContainerTest extends TestCase
 {
 	private MiddlewareContainer $container;
+	private Request             $request;
 
 	protected function setUp(): void
 	{
-		$this->container = new MiddlewareContainer( function ()
+		$this->request = new Request();
+		$this->request->setQueryParameterProvider( new WritableArrayValueProvider( [] ) );
+		$request         = $this->request;
+		$this->container = new MiddlewareContainer( function () use ( &$request )
 		{
+			$request->setServerProvider( new ArrayValueProvider( [ 'REQUEST_METHOD' => 'GET' ] ) );
 		} );
 	}
 
@@ -46,9 +53,23 @@ class MiddlewareContainerTest extends TestCase
 
 	public function testBuildPipelineReturnsMiddlewareContainer(): void
 	{
-		$request = $this->createStub(Request::class);
-		$container = $this->container->buildPipeline( $request, new Response( '' ) );
+		$container = $this->container->buildPipeline( $this->request, new Response( '' ) );
 		$this->assertInstanceOf( MiddlewareContainer::class, $container );
+	}
+
+	public function testBuildPipelineBuildsClosurePipeline(): void
+	{
+		$this->container->register( new TestImpl2() );
+		$this->container->buildPipeline( $this->request, new Response( '' ) );
+		$this->container->execute();
+
+		$this->assertEquals( 42, $this->request->getQueryParameter( 'the question' ) );
+	}
+
+	public function testExecuteExecutesPipeline(): void
+	{
+		$this->container->execute();
+		$this->assertEquals( 'GET', $this->request->getMethod() );
 	}
 }
 
@@ -57,5 +78,13 @@ class TestImpl implements MiddlewareInterface
 	public function handle( Request $request, Response $response, Closure $next )
 	{
 		// Test implementation, should do nothing
+	}
+}
+
+class TestImpl2 implements MiddlewareInterface
+{
+	public function handle( Request $request, Response $response, Closure $next )
+	{
+		$request->setQueryParameter( 'the question', 42 );
 	}
 }
