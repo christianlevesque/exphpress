@@ -2,12 +2,12 @@
 
 namespace Providers;
 
-use Crossview\Exphpress\Providers\SuperglobalProvider;
+use Crossview\Exphpress\Providers\ArrayValueProvider;
 use PHPUnit\Framework\TestCase;
 
-class SuperglobalProviderTest extends TestCase
+class ArrayValueProviderTest extends TestCase
 {
-	private SuperglobalProvider $provider;
+	private ArrayValueProvider $provider;
 
 	protected function setUp(): void
 	{
@@ -16,12 +16,12 @@ class SuperglobalProviderTest extends TestCase
 			'value2' => 42
 		];
 
-		$this->provider = new SuperglobalProvider( $values );
+		$this->provider = new ArrayValueProvider( $values );
 	}
 
 	public function testCanBeCreated(): void
 	{
-		$this->assertInstanceOf( SuperglobalProvider::class, $this->provider );
+		$this->assertInstanceOf( ArrayValueProvider::class, $this->provider );
 	}
 
 	public function testGetReturnsValueIfExists(): void

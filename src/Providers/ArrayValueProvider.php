@@ -4,7 +4,7 @@
 namespace Crossview\Exphpress\Providers;
 
 
-class SuperglobalProvider
+class ArrayValueProvider
 {
 	protected array $values;
 
@@ -16,7 +16,7 @@ class SuperglobalProvider
 	/**
 	 * Gets a value from the backing array, or null if index doesn't exist
 	 *
-	 * SuperglobalProvider::get casts the value to a string before returning. If you desire the original datatype to be preserved, use SuperglobalProvider::getRaw.
+	 * ArrayValueProvider::get casts the value to a string before returning. If you desire the original datatype to be preserved, use ArrayValueProvider::getRaw.
 	 *
 	 * @param string $index The index of the value to retrieve
 	 *
