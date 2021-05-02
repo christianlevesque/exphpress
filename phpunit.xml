@@ -17,6 +17,9 @@
 		<report>
 			<text outputFile="php://stdout"
 				  showUncoveredFiles="true"/>
+			<html outputDirectory="testResults/html"/>
+			<xml outputDirectory="testResults/xml"/>
+			<clover outputFile="testResults/results.clover.xml"/>
 		</report>
 	</coverage>
 	<testsuites>
