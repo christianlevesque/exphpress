@@ -18,14 +18,17 @@ class MiddlewareContainer
 	 */
 	private Closure $pipeline;
 
-	public function __construct()
+	public function __construct(Closure $initialPipeline)
 	{
-		// The pipeline starts with an empty closure
-		// This allows developers to create their middleware without worrying about a null check on next(), because it's guaranteed to never be null
-		// I'll take a single unnecessary function call over potentially dozens or hundreds of null checks
-		$this->pipeline = function ()
-		{
-		};
+		$this->pipeline = $initialPipeline;
+	}
+
+	/**
+	 * @return MiddlewareInterface[]
+	 */
+	public function getMiddleware(): array
+	{
+		return $this->middleware;
 	}
 
 	/**
