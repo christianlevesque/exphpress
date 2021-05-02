@@ -3,6 +3,7 @@
 namespace Crossview\Exphpress\Http;
 
 use Crossview\Exphpress\Providers\ArrayValueProvider;
+use Crossview\Exphpress\Providers\WritableArrayValueProvider;
 
 class Request
 {
@@ -34,6 +35,17 @@ class Request
 	public function getMethod(): string
 	{
 		return $this->serverProvider->get( 'REQUEST_METHOD' );
+	}
+
+	/**
+	 * Getter for the passed $_SERVER value
+	 *
+	 * @param string $parameter The $_SERVER value to retrieve
+	 *
+	 * @return mixed|null
+	 */
+	public function getServerParameter(string $parameter) {
+		return $this->serverProvider->getRaw($parameter);
 	}
 
 	/**

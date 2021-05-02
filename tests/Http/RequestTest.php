@@ -4,6 +4,7 @@ namespace Http;
 
 use Crossview\Exphpress\Http\Request;
 use Crossview\Exphpress\Providers\ArrayValueProvider;
+use Crossview\Exphpress\Providers\WritableArrayValueProvider;
 use PHPUnit\Framework\TestCase;
 
 class RequestTest extends TestCase
@@ -36,9 +37,24 @@ class RequestTest extends TestCase
 		$this->request->getMethod();
 	}
 
+	public function testGetServerParameterReturnsServerParameterIfServerProviderSet(): void
+	{
+		$this->request->setServerProvider( new ArrayValueProvider( [ 'some_value' => 42 ] ) );
+		$result = $this->request->getServerParameter( 'some_value' );
+
+		$this->assertIsNumeric( $result );
+		$this->assertEquals( 42, $result );
+	}
+
+	public function testGetServerParameterThrowsIfServerProviderNotSet(): void
+	{
+		$this->expectErrorMessage( 'Typed property Crossview\Exphpress\Http\Request::$serverProvider must not be accessed before initialization' );
+		$this->request->getServerParameter( '' );
+	}
+
 	public function testGetQueryParameterReturnsParameterIfQueryParameterProviderSet(): void
 	{
-		$this->request->setQueryParameterProvider( new ArrayValueProvider( [ 'id' => 42 ] ) );
+		$this->request->setQueryParameterProvider( new WritableArrayValueProvider( [ 'id' => 42 ] ) );
 		$result = $this->request->getQueryParameter( 'id' );
 
 		$this->assertNotNull( $result );
@@ -54,7 +70,7 @@ class RequestTest extends TestCase
 
 	public function testGetRequestParameterReturnsParameterIfRequestParameterProviderSet(): void
 	{
-		$this->request->setRequestParameterProvider( new ArrayValueProvider( [ 'old_id' => 84 ] ) );
+		$this->request->setRequestParameterProvider( new WritableArrayValueProvider( [ 'old_id' => 84 ] ) );
 		$result = $this->request->getRequestParameter( 'old_id' );
 
 		$this->assertNotNull( $result );
@@ -98,8 +114,8 @@ class RequestTest extends TestCase
 	public function testSetQueryParameterProviderOnlySetsQueryParameterProviderOnce(): void
 	{
 		$expected = 'life, the universe, and everything';
-		$this->request->setQueryParameterProvider( new ArrayValueProvider( [ 'search' => $expected ] ) );
-		$this->request->setQueryParameterProvider( new ArrayValueProvider( [ 'search' => 'what is 42' ] ) );
+		$this->request->setQueryParameterProvider( new WritableArrayValueProvider( [ 'search' => $expected ] ) );
+		$this->request->setQueryParameterProvider( new WritableArrayValueProvider( [ 'search' => 'what is 42' ] ) );
 
 		$result = $this->request->getQueryParameter( 'search' );
 
@@ -109,8 +125,8 @@ class RequestTest extends TestCase
 	public function testSetRequestParameterProviderOnlySetsRequestParameterProviderOnce(): void
 	{
 		$expected = 42;
-		$this->request->setRequestParameterProvider( new ArrayValueProvider( [ 'old_id' => $expected ] ) );
-		$this->request->setRequestParameterProvider( new ArrayValueProvider( [ 'old_id' => 84 ] ) );
+		$this->request->setRequestParameterProvider( new WritableArrayValueProvider( [ 'old_id' => $expected ] ) );
+		$this->request->setRequestParameterProvider( new WritableArrayValueProvider( [ 'old_id' => 84 ] ) );
 
 		$result = $this->request->getRequestParameter( 'old_id' );
 
