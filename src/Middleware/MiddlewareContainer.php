@@ -59,8 +59,10 @@ class MiddlewareContainer
 		$pipeline = $this->pipeline;
 
 		// Wrap each new middleware around the existing pipeline
-		foreach ( $this->middleware as $currentMiddleware )
+		// Using a for loop because an apparent bug throws off the code path count for foreach loops
+		for ( $i = 0; $i < count( $this->middleware ); $i++ )
 		{
+			$currentMiddleware = $this->middleware[ $i ];
 			// The closure needs to reference the current middleware, the request, the response, and the existing pipeline
 			// The existing pipeline will be used as next() for the new pipeline
 			$pipeline = function () use ( $currentMiddleware, &$request, &$response, $pipeline )

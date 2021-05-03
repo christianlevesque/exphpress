@@ -20,6 +20,7 @@ class HeadersProvider extends WritableArrayValueProvider implements CrudProvider
 	 */
 	public function sendHeaders(): void
 	{
+		// using map instead of a foreach loop because of an apparent bug that throws off the code path count for foreach loops
 		array_map(
 			function ( $name, $value )
 			{
