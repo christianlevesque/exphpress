@@ -41,4 +41,15 @@ class HeadersProviderTest extends TestCase
 		$this->assertCount( 1, $headers );
 		$this->assertContains( 'Location: https://oseiskar.github.io/black-hole/', $headers );
 	}
+
+	/**
+	 * @runInSeparateProcess
+	 */
+	public function testSendHeadersFlushesHeaderBuffer(): void
+	{
+		$provider = new HeadersProvider(['Location' => 'https://oseiskar.github.io/black-hole/']);
+		$provider->sendHeaders();
+
+		$this->assertNull($provider->get('Location'));
+	}
 }

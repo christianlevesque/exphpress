@@ -17,6 +17,8 @@ class HeadersProvider extends WritableArrayValueProvider implements CrudProvider
 
 	/**
 	 * Sends all headers registered
+	 *
+	 * After headers have been sent, the header buffer is flushed. The terminal middleware is then responsible for calling HeadersProvider::sendHeaders again, to allow any middleware that queued headers after calling $next() to send cookies using the Request instance.
 	 */
 	public function sendHeaders(): void
 	{
@@ -29,5 +31,7 @@ class HeadersProvider extends WritableArrayValueProvider implements CrudProvider
 			array_keys( $this->values ),
 			$this->values
 		);
+
+		$this->values = [];
 	}
 }
