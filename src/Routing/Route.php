@@ -1,6 +1,6 @@
 <?php
 
-namespace Crossview\Exphpress;
+namespace Crossview\Exphpress\Routing;
 
 use \Closure;
 use \InvalidArgumentException;

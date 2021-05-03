@@ -1,6 +1,6 @@
 <?php
 
-namespace Crossview\Exphpress;
+namespace Crossview\Exphpress\Routing;
 
 use Crossview\Exphpress\Http\Request;
 use Crossview\Exphpress\Http\Response;
