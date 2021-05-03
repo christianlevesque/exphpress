@@ -11,6 +11,9 @@ class ArrayValueProvider implements ReadableProvider
 		$this->values = $input;
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	public function get( string $index ): ?string
 	{
 		if ( array_key_exists( $index, $this->values ) )
@@ -21,6 +24,17 @@ class ArrayValueProvider implements ReadableProvider
 		return null;
 	}
 
+	/**
+	 * @inheritDoc
+	 */
+	public function getAll(): array
+	{
+		return $this->values;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
 	public function getRaw( string $index )
 	{
 		if ( array_key_exists( $index, $this->values ) )
