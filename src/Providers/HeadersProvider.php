@@ -2,17 +2,11 @@
 
 namespace Crossview\Exphpress\Providers;
 
-class HeadersProvider extends WritableArrayValueProvider implements CrudProvider
+class HeadersProvider extends CrudArrayValueProvider
 {
 	public function __construct( array $defaultHeaders = [] )
 	{
 		parent::__construct( $defaultHeaders );
-	}
-
-	function unset( string $key ): HeadersProvider
-	{
-		unset( $this->values[ $key ] );
-		return $this;
 	}
 
 	/**
