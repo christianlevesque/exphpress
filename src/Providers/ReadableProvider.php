@@ -16,6 +16,13 @@ interface ReadableProvider
 	function get( string $index ): ?string;
 
 	/**
+	 * Returns the backing array
+	 *
+	 * @return array
+	 */
+	function getAll(): array;
+
+	/**
 	 * Gets a value from the backing array with its original datatype preserved, or null if index doesn't exist
 	 *
 	 * @param string $index The index of the value to retrieve
