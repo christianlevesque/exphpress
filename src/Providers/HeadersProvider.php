@@ -2,11 +2,54 @@
 
 namespace Crossview\Exphpress\Providers;
 
-class HeadersProvider extends CrudArrayValueProvider
+class HeadersProvider
 {
+	private CrudArrayValueProvider $headers;
+
 	public function __construct( array $defaultHeaders = [] )
 	{
-		parent::__construct( $defaultHeaders );
+		$this->headers = new CrudArrayValueProvider( $defaultHeaders );
+	}
+
+	/**
+	 * Gets a header from the queue
+	 *
+	 * @param string $name The name of the header to get
+	 *
+	 * @return mixed|null
+	 */
+	public function getHeader( string $name )
+	{
+		return $this->headers->getRaw( $name );
+	}
+
+	/**
+	 * Queues a header to be sent
+	 *
+	 * @param string $name  The header to queue
+	 * @param mixed  $value The value of the header to queue
+	 *
+	 * @return $this
+	 */
+	public function setHeader( string $name, $value ): HeadersProvider
+	{
+		$this->headers->set( $name, $value );
+
+		return $this;
+	}
+
+	/**
+	 * Removes a header from the queue
+	 *
+	 * @param string $name The header to unqueue
+	 *
+	 * @return $this
+	 */
+	public function unsetHeader( string $name ): HeadersProvider
+	{
+		$this->headers->unset( $name );
+
+		return $this;
 	}
 
 	/**
@@ -16,16 +59,15 @@ class HeadersProvider extends CrudArrayValueProvider
 	 */
 	public function sendHeaders(): void
 	{
-		// using map instead of a foreach loop because of an apparent bug that throws off the code path count for foreach loops
-		array_map(
-			function ( $name, $value )
-			{
-				header( "$name: $value" );
-			},
-			array_keys( $this->values ),
-			$this->values
-		);
+		$keys = array_keys( $this->headers->getAll() );
+		// using for instead of a foreach loop because of an apparent bug that throws off the code path count for foreach loops
+		for ( $i = 0; $i < count( $keys ); $i++ )
+		{
+			$name  = $keys[ $i ];
+			$value = $this->headers->getRaw( $name );
+			header( "$name: $value" );
+		}
 
-		$this->values = [];
+		$this->headers->unsetAll();
 	}
 }
