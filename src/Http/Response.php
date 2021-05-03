@@ -2,32 +2,16 @@
 
 namespace Crossview\Exphpress\Http;
 
+use Crossview\Exphpress\Exceptions\ExphpressException;
+use Crossview\Exphpress\Providers\CookieProvider;
+use Crossview\Exphpress\Providers\HeadersProvider;
+
 class Response
 {
 	/**
 	 * @var int The HTTP Status Code to send along with the payload. Defaults to 200 in the constructor.
 	 */
 	protected int $responseCode;
-
-	/**
-	 * @var string The main body of the payload. Defaults to an empty string in the constructor. The body may be overwritten or appended to, depending on which method is used to interact with the field.
-	 */
-	protected string $responseBody;
-
-	/**
-	 * @var array A list of headers to be sent with the payload, stored as key => value pairs. The headers here will be processed as the payload is sent.
-	 */
-	protected array $headers;
-
-	/**
-	 * @var array A list of cookies to be sent with the payload, stored as key => value pairs. The cookies here will be processed as the payload is sent.
-	 */
-	protected $cookies;
-
-	/**
-	 * @var array The default cookie options, used by Response::setCookie() and Response::unsetCookie(). Can be overriden by passing an associative array of options to either method.
-	 */
-	protected $cookieOptions;
 
 	/**
 	 * Returns the currently set HTTP Status Code
@@ -37,56 +21,6 @@ class Response
 	public function getResponseCode()
 	{
 		return $this->responseCode;
-	}
-
-	/**
-	 * Gets the currently set HTTP Response Body
-	 *
-	 * @return string Returns the currently set HTTP Response Body
-	 */
-	public function getResponseBody()
-	{
-		return $this->responseBody;
-	}
-
-	/**
-	 * Gets the currently queued HTTP Response Headers
-	 *
-	 * @return array Returns the currently queued HTTP Response Headers
-	 */
-	public function getHeaders()
-	{
-		return $this->headers;
-	}
-
-	/**
-	 * Gets the currently queued cookies
-	 *
-	 * @return array Returns the currently queued cookies
-	 */
-	public function getCookies()
-	{
-		return $this->cookies;
-	}
-
-	/**
-	 * Response constructor.
-	 */
-	public function __construct()
-	{
-		// TODO: Allow configuration of the defaults found here
-		$this->responseCode  = 200;
-		$this->responseBody  = "";
-		$this->headers       = [];
-		$this->cookies       = [];
-		$this->cookieOptions = [
-			'expires'  => time() + 60 * 60 * 24,
-			'path'     => '/',
-			'domain'   => '',
-			'secure'   => true,
-			'httponly' => true,
-			'samesite' => 'lax'
-		];
 	}
 
 	/**
@@ -117,6 +51,21 @@ class Response
 	public function status( int $code ): Response
 	{
 		return $this->setResponseCode( $code );
+	}
+
+	/**
+	 * @var string The main body of the payload. Defaults to an empty string in the constructor. The body may be overwritten or appended to, depending on which method is used to interact with the field.
+	 */
+	protected string $responseBody;
+
+	/**
+	 * Gets the currently set HTTP Response Body
+	 *
+	 * @return string Returns the currently set HTTP Response Body
+	 */
+	public function getResponseBody(): string
+	{
+		return $this->responseBody;
 	}
 
 	/**
@@ -152,19 +101,117 @@ class Response
 	}
 
 	/**
+	 * @var HeadersProvider A container for HTTP response headers. The headers here will be sent as the payload is sent.
+	 */
+	protected HeadersProvider $headersProvider;
+
+	/**
+	 * Returns the configured HeadersProvider instance
+	 *
+	 * @return HeadersProvider
+	 *
+	 * @throws ExphpressException if no HeadersProvider has been configured for the Response
+	 */
+	public function getHeadersProvider(): HeadersProvider
+	{
+		if ( !isset( $this->headersProvider ) )
+		{
+			throw new ExphpressException( 'You are attempting to access the Response HeadersProvider, but none has been configured.' );
+		}
+
+		return $this->headersProvider;
+	}
+
+	/**
+	 * Sets the Headers Provider if it hasn't already been set
+	 *
+	 * This method is called by Exphpress; develops shouldn't need to call this unless they're executing Exphpress manually.
+	 *
+	 * @param HeadersProvider $headersProvider
+	 *
+	 * @return $this
+	 *
+	 * @throws ExphpressException if the HeadersProvider has already been configured for the Response
+	 */
+	public function setHeadersProvider( HeadersProvider $headersProvider ): Response
+	{
+		if ( isset( $this->headersProvider ) )
+		{
+			throw new ExphpressException( 'You are attempting to set the Response HeadersProvider, but a HeadersProvider has already been configured.' );
+		}
+		$this->headersProvider = $headersProvider;
+
+		return $this;
+	}
+
+	/**
+	 * @var CookieProvider
+	 */
+	protected CookieProvider $cookieProvider;
+
+	/**
+	 * Returns the configured CookieProvider instance
+	 *
+	 * @return CookieProvider
+	 *
+	 * @throws ExphpressException if no CookieProvider has been configured for the Response
+	 */
+	public function getCookieProvider(): CookieProvider
+	{
+		if ( !isset( $this->cookieProvider ) )
+		{
+			throw new ExphpressException( 'You are attempting to access the Response CookieProvider, but none has been configured.' );
+		}
+
+		return $this->cookieProvider;
+	}
+
+	/**
+	 * Sets the Headers Provider if it hasn't already been set
+	 *
+	 * This method is called by Exphpress; develops shouldn't need to call this unless they're executing Exphpress manually.
+	 *
+	 * @param CookieProvider $cookieProvider
+	 *
+	 * @return $this
+	 *
+	 * @throws ExphpressException if the HeadersProvider has already been configured for the Response
+	 */
+	public function setCookieProvider( CookieProvider $cookieProvider ): Response
+	{
+		if ( isset( $this->cookieProvider ) )
+		{
+			throw new ExphpressException( 'You are attempting to set the Response CookieProvider, but a CookieProvider has already been configured.' );
+		}
+		$this->cookieProvider = $cookieProvider;
+
+		return $this;
+	}
+
+	/**
+	 * Response constructor.
+	 */
+	public function __construct()
+	{
+		$this->responseCode = 200;
+		$this->responseBody = '';
+	}
+
+	/**
 	 * Queues a header to be set before sending response body
 	 *
 	 * The header value is not directly set by this method. Instead, the method that sends the response body will also set the header at that time.
 	 *
-	 * @param string $name The name of the header to be set
-	 * @param mixed $value The value of the header to be set
+	 * @param string $name  The name of the header to be set
+	 * @param mixed  $value The value of the header to be set
 	 *
 	 * @return Response Returns the instance of the Response object (to enable method chaining)
 	 */
 	public function setHeader( string $name, $value ): Response
 	{
-		$this->headers[ $name ] = $value;
-
+		// Use getHeadersProvider to ensure it throws the correct exception if it hasn't been set
+		$this->getHeadersProvider()
+			 ->setHeader( $name, $value );
 		return $this;
 	}
 
@@ -173,83 +220,98 @@ class Response
 	 *
 	 * The cookie value is not directly set by this method. Instead, the method that sends the response body will also set the cookie at that time.
 	 *
-	 * @param string $name The name of the cookie to be set
-	 * @param mixed $value The value of the cookie to be set
-	 * @param array $options (optional) The options for the cookie to be set
+	 * @param string $name    The name of the cookie to be set
+	 * @param mixed  $value   The value of the cookie to be set
+	 * @param array  $options (optional) The options for the cookie to be set
 	 *
 	 * @return Response
 	 */
-	public function setCookie( string $name, $value, $options = null ): Response
+	public function setCookie( string $name, $value, $options = [] ): Response
 	{
-		$parsedOptions          = $options
-			? array_merge( $this->cookieOptions, $options )
-			: $this->cookieOptions;
-		$this->cookies[ $name ] = [
-			'value'   => $value,
-			'options' => $parsedOptions
-		];
+		// Use getCookieProvider to ensure it throws the correct exception if it hasn't been set
+		$this->getCookieProvider()
+			 ->setCookie( $name, $value, $options );
+		return $this;
+	}
+
+	/**
+	 * Unqueues a previously queued cookie
+	 *
+	 * This method does NOT delete a cookie from a user's browser. This method simply removed a cookie from the cookie queue. To delete a cookie from a user's browser, use Response::deleteCookie.
+	 *
+	 * @param string $name The name of the cookie to be unset
+	 *
+	 * @return Response
+	 */
+	public function unsetCookie( string $name ): Response
+	{
+		// Use getCookieProvider to ensure it throws the correct exception if it hasn't been set
+		$this->getCookieProvider()
+			 ->unsetCookie( $name );
 
 		return $this;
 	}
 
 	/**
-	 * Queues a cookie to be unset before sending response body
+	 * Sends the HTTP status code registered on the Response
 	 *
-	 * This method is merely a wrapper around Response::setCookie() (because PHP cookies are set and unset in the same way). It merges the standard default options with user-defined options, and also merges with an array that sets the 'expires' value to 1 (this is a Unix timestamp, so 1 refers to 1 Jan 1970 at 00:00:01)
+	 * Once this has been sent, the HTTP response has started and the status code cannot be changed.
 	 *
-	 * @param string $name The name of the cookie to be deleted
-	 * @param array $options (optional) The options for the cookie to be deleted. These must be the same as the options used to set the cookie, or else the cookie will not be deleted.
-	 *
-	 * @return Response
+	 * @return $this
 	 */
-	public function unsetCookie( string $name, $options = null ): Response
+	public function sendHttpStatus(): Response
 	{
-		$expiredTime   = [ 'expires' => 1 ];
-		$deleteOptions = $options
-			? array_merge( $this->cookieOptions, $options, $expiredTime )
-			: array_merge( $this->cookieOptions, $expiredTime );
-		$this->setCookie( $name, '', $deleteOptions );
-
+		http_response_code( $this->getResponseCode() );
 		return $this;
 	}
 
-	public function sendHttpStatus()
+	/**
+	 * Sends all HTTP headers registered on the Response
+	 *
+	 * @return $this
+	 */
+	public function sendHeaders(): Response
 	{
-		http_response_code( $this->getResponseCode() );
+		// Use getHeadersProvider to ensure it throws the correct exception if it hasn't been set
+		$this->getHeadersProvider()
+			 ->sendHeaders();
+		return $this;
 	}
 
-	public function sendHeaders()
+	/**
+	 * Sends all cookies registered on the Response
+	 *
+	 * @return $this
+	 */
+	public function sendCookies(): Response
 	{
-		foreach ( $this->getHeaders() as $name => $value )
-		{
-			header( "$name: $value" );
-		}
+		// Use getCookieProvider to ensure it throws the correct exception if it hasn't been set
+		$this->getCookieProvider()
+			 ->sendCookies();
+		return $this;
 	}
 
-	public function sendCookies()
-	{
-		foreach ( $this->getCookies() as $name => $cookie )
-		{
-			setcookie( $name, $cookie[ 'value' ], $cookie[ 'options' ] );
-		}
-	}
-
-	public function send( $body = '', $replaceBody = false )
+	/**
+	 * Sends the HTTP response
+	 *
+	 * This method sends the entire HTTP response at once. The status code is sent, followed by cookies, followed by other HTTP headers, and finally, the response body, if any.
+	 *
+	 * @param string $body        The HTTP response body to send in the Response. If already set, this appends to the existing response body unless the $replaceBody argument is set to true
+	 * @param false  $replaceBody Whether or not to replace the existing response body with the provided body
+	 */
+	public function send( string $body = '', bool $replaceBody = false )
 	{
 		if ( $replaceBody )
 		{
 			$this->setResponseBody( $body );
-		} else
+		} else if ( !empty( $body ) )
 		{
-			if ( !empty( $body ) )
-			{
-				$this->appendToResponseBody( $body );
-			}
+			$this->appendToResponseBody( $body );
 		}
 
-		$this->sendHttpStatus();
-		$this->sendCookies();
-		$this->sendHeaders();
-		echo $this->getResponseBody();
+		echo $this->sendHttpStatus()
+				  ->sendCookies()
+				  ->sendHeaders()
+				  ->getResponseBody();
 	}
 }
