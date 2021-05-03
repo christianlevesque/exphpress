@@ -11,4 +11,10 @@ class CrudArrayValueProvider extends WritableArrayValueProvider implements CrudP
 		unset( $this->values[ $key ] );
 		return $this;
 	}
+
+	function unsetAll(): CrudArrayValueProvider
+	{
+		$this->values = [];
+		return $this;
+	}
 }

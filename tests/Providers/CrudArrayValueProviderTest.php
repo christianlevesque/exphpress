@@ -7,25 +7,35 @@ use PHPUnit\Framework\TestCase;
 
 class CrudArrayValueProviderTest extends TestCase
 {
+	private CrudArrayValueProvider $provider;
+
+	protected function setUp(): void
+	{
+		$this->provider = new CrudArrayValueProvider( [ 'the question' => 42 ] );
+	}
+
 	public function testConstructorCallsParentWithDefaultHeaders(): void
 	{
-		$provider = new CrudArrayValueProvider( [ 'the question' => 42 ] );
-		$this->assertEquals( 42, $provider->getRaw( 'the question' ) );
+		$this->assertEquals( 42, $this->provider->getRaw( 'the question' ) );
 	}
 
 	public function testUnsetRemovedHeaderFromValues(): void
 	{
-		$provider = new CrudArrayValueProvider( [ 'the question' => 42 ] );
-		$provider->unset( 'the question' );
+		$this->provider->unset( 'the question' );
 
-		$this->assertNull( $provider->get( 'the question' ) );
+		$this->assertNull( $this->provider->get( 'the question' ) );
 	}
 
 	public function testUnsetReturnsHeadersProvider(): void
 	{
-		$provider = new CrudArrayValueProvider( [] );
-		$result   = $provider->unset( 'the question' ); // Doesn't throw because unset doesn't care if a symbol exists
+		$result = $this->provider->unset( 'the question' ); // Doesn't throw because unset doesn't care if a symbol exists
 
 		$this->assertInstanceOf( CrudArrayValueProvider::class, $result );
+	}
+
+	public function testUnsetAllUnsetsAllValues(): void
+	{
+		$this->provider->unsetAll();
+		$this->assertNull( $this->provider->get( 'the question' ) );
 	}
 }

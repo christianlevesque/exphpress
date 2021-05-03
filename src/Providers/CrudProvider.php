@@ -14,4 +14,11 @@ interface CrudProvider extends ReadableWritableProvider
 	 * @return $this
 	 */
 	function unset( string $key ): CrudProvider;
+
+	/**
+	 * Unsets all values
+	 *
+	 * @return $this
+	 */
+	function unsetAll(): CrudProvider;
 }
