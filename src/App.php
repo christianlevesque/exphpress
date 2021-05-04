@@ -3,16 +3,13 @@
 namespace Crossview\Exphpress;
 
 use Crossview\Exphpress\Middleware\MiddlewareContainer;
-use Crossview\Exphpress\Http\Request;
-use Crossview\Exphpress\Http\Response;
 use Crossview\Exphpress\Middleware\MiddlewareInterface;
+use Crossview\Exphpress\Routing\Router;
 
 class App
 {
 	protected static App $instance;
 	protected Router     $router;
-	protected Request    $request;
-	protected Response   $response;
 
 	/**
 	 * @var MiddlewareContainer Middleware container
@@ -21,10 +18,7 @@ class App
 
 	protected function __construct()
 	{
-
 		$this->router     = Router::getInstance();
-		$this->request    = new Request;
-		$this->response   = new Response();
 		$this->middleware = new MiddlewareContainer(function() {});
 	}
 
@@ -57,8 +51,7 @@ class App
 	 */
 	public function execute(): void
 	{
-		$this->middleware->buildPipeline( $this->request, $this->response )
-						 ->execute();
+		$this->middleware->execute();
 	}
 
 	/**
@@ -67,22 +60,6 @@ class App
 	public function getRouter(): Router
 	{
 		return $this->router;
-	}
-
-	/**
-	 * @return Request
-	 */
-	public function getRequest(): Request
-	{
-		return $this->request;
-	}
-
-	/**
-	 * @return Response
-	 */
-	public function getResponse(): Response
-	{
-		return $this->response;
 	}
 
 	/**
