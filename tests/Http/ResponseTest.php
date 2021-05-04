@@ -9,12 +9,14 @@ use PHPUnit\Framework\TestCase;
 
 class ResponseTest extends TestCase
 {
+	private const HEADER_NAME  = 'X-Some-Header';
+	private const HEADER_VALUE = 42;
 	private Response $response;
 
 	public function setUp(): void
 	{
 		$this->response = new Response();
-		$this->response->setHeadersProvider( new HeadersProvider( [ 'X-Some-Header' => 42 ] ) );
+		$this->response->setHeadersProvider( new HeadersProvider( [ self::HEADER_NAME => self::HEADER_VALUE ] ) );
 		$this->response->setCookieProvider( new CookieProvider(
 			[],
 			[
@@ -110,7 +112,7 @@ class ResponseTest extends TestCase
 	public function testSetHeadersProviderSetsHeadersProvider(): void
 	{
 		$result = $this->response->getHeadersProvider();
-		$this->assertEquals( 42, $result->getHeader( 'X-Some-Header' ) );
+		$this->assertEquals( self::HEADER_VALUE, $result->getHeader( self::HEADER_NAME ) );
 	}
 
 	public function testSetHeadersProviderReturnsResponse(): void
@@ -177,6 +179,27 @@ class ResponseTest extends TestCase
 		$response = new Response();
 		$this->expectErrorMessage( 'You are attempting to access the Response HeadersProvider, but none has been configured.' );
 		$response->setHeader( '', '' );
+	}
+
+	// unsetHeader
+	public function testUnsetHeaderUnsetsHeader(): void
+	{
+		$headers = $this->response->getHeadersProvider();
+		$this->assertNotNull( $headers->getHeader( self::HEADER_NAME ) );
+		$this->response->unsetHeader( self::HEADER_NAME );
+		$this->assertNull( $headers->getHeader( self::HEADER_NAME ) );
+	}
+
+	public function testUnsetHeaderReturnsResponse(): void
+	{
+		$this->assertInstanceOf( Response::class, $this->response->unsetHeader( '' ) );
+	}
+
+	public function testUnsetHeaderThrowsIfHeaderProviderNotExists(): void
+	{
+		$response = new Response();
+		$this->expectErrorMessage( 'You are attempting to access the Response HeadersProvider, but none has been configured.' );
+		$response->unsetHeader( '' );
 	}
 
 	// setCookie
@@ -247,7 +270,7 @@ class ResponseTest extends TestCase
 	{
 		$this->response->sendHeaders();
 		$headers = xdebug_get_headers();
-		$this->assertContains( 'X-Some-Header: 42', $headers );
+		$this->assertContains( self::HEADER_NAME . ': ' . self::HEADER_VALUE, $headers );
 	}
 
 	/**
@@ -316,7 +339,7 @@ class ResponseTest extends TestCase
 	public function testSendCallsSendCookies(): void
 	{
 		$this->response->getHeadersProvider()
-					   ->unsetHeader( 'X-Some-Header' );
+					   ->unsetHeader( self::HEADER_NAME );
 		$this->response->send();
 		$headers = xdebug_get_headers();
 		$this->assertCount( 1, $headers );
@@ -332,7 +355,7 @@ class ResponseTest extends TestCase
 					   ->send();
 		$headers = xdebug_get_headers();
 		$this->assertCount( 1, $headers );
-		$this->assertEquals( 'X-Some-Header: 42', $headers[ 0 ] );
+		$this->assertEquals( self::HEADER_NAME . ': ' . self::HEADER_VALUE, $headers[ 0 ] );
 	}
 
 	/**

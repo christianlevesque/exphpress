@@ -18,7 +18,7 @@ class Response
 	 *
 	 * @return int Returns the currently set HTTP Status Code
 	 */
-	public function getResponseCode()
+	public function getResponseCode(): int
 	{
 		return $this->responseCode;
 	}
@@ -212,6 +212,20 @@ class Response
 		// Use getHeadersProvider to ensure it throws the correct exception if it hasn't been set
 		$this->getHeadersProvider()
 			 ->setHeader( $name, $value );
+		return $this;
+	}
+
+	/**
+	 * Unqueues a previously queued header
+	 *
+	 * @param string $name The name of the header to be unset
+	 *
+	 * @return $this
+	 */
+	public function unsetHeader( string $name ): Response
+	{
+		$this->getHeadersProvider()
+			 ->unsetHeader( $name );
 		return $this;
 	}
 
