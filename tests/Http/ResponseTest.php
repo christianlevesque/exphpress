@@ -9,23 +9,17 @@ use PHPUnit\Framework\TestCase;
 
 class ResponseTest extends TestCase
 {
-	private const HEADER_NAME  = 'X-Some-Header';
-	private const HEADER_VALUE = 42;
-	private Response $response;
+	private Response        $response;
+	private HeadersProvider $headersProvider;
+	private CookieProvider  $cookieProvider;
 
 	public function setUp(): void
 	{
-		$this->response = new Response();
-		$this->response->setHeadersProvider( new HeadersProvider( [ self::HEADER_NAME => self::HEADER_VALUE ] ) );
-		$this->response->setCookieProvider( new CookieProvider(
-			[],
-			[
-				'my_cookie' => [
-					'value'   => 'is tasty',
-					'options' => []
-				]
-			]
-		) );
+		$this->response        = new Response();
+		$this->headersProvider = $this->createMock( HeadersProvider::class );
+		$this->cookieProvider  = $this->createMock( CookieProvider::class );
+		$this->response->setHeadersProvider( $this->headersProvider );
+		$this->response->setCookieProvider( $this->cookieProvider );
 	}
 
 	// Constructor
@@ -111,20 +105,21 @@ class ResponseTest extends TestCase
 
 	public function testSetHeadersProviderSetsHeadersProvider(): void
 	{
-		$result = $this->response->getHeadersProvider();
-		$this->assertEquals( self::HEADER_VALUE, $result->getHeader( self::HEADER_NAME ) );
+		$response = new Response();
+		$response->setHeadersProvider( $this->headersProvider );
+		$this->assertInstanceOf( HeadersProvider::class, $this->response->getHeadersProvider() );
 	}
 
 	public function testSetHeadersProviderReturnsResponse(): void
 	{
 		$response = new Response();
-		$this->assertInstanceOf( Response::class, $response->setHeadersProvider( new HeadersProvider() ) );
+		$this->assertInstanceOf( Response::class, $response->setHeadersProvider( $this->headersProvider ) );
 	}
 
 	public function testSetHeadersProviderThrowsIfHeadersProviderExists(): void
 	{
 		$this->expectErrorMessage( 'You are attempting to set the Response HeadersProvider, but a HeadersProvider has already been configured.' );
-		$this->response->setHeadersProvider( new HeadersProvider() );
+		$this->response->setHeadersProvider( $this->headersProvider );
 	}
 
 	// cookieProvider getter/setter
@@ -142,20 +137,21 @@ class ResponseTest extends TestCase
 
 	public function testSetCookieProviderSetsCookieProvider(): void
 	{
-		$provider = $this->response->getCookieProvider();
-		$this->assertEquals( 'is tasty', $provider->getCookie( 'my_cookie' )[ 'value' ] );
+		$response = new Response();
+		$response->setCookieProvider( $this->cookieProvider );
+		$this->assertInstanceOf( CookieProvider::class, $this->response->getCookieProvider() );
 	}
 
 	public function testSetCookieProviderReturnsResponse(): void
 	{
 		$response = new Response();
-		$this->assertInstanceOf( Response::class, $response->setCookieProvider( new CookieProvider() ) );
+		$this->assertInstanceOf( Response::class, $response->setCookieProvider( $this->cookieProvider ) );
 	}
 
 	public function testSetCookieProviderThrowsIfCookieProviderExists(): void
 	{
 		$this->expectErrorMessage( 'You are attempting to set the Response CookieProvider, but a CookieProvider has already been configured.' );
-		$this->response->setCookieProvider( new CookieProvider() );
+		$this->response->setCookieProvider( $this->cookieProvider );
 	}
 
 	// setHeader
@@ -163,10 +159,10 @@ class ResponseTest extends TestCase
 	{
 		$name  = 'X-Powered-By';
 		$value = 'coffee and PHP';
+		$this->headersProvider->expects( $this->once() )
+							  ->method( 'setHeader' )
+							  ->with( $name, $value );
 		$this->response->setHeader( $name, $value );
-		$result = $this->response->getHeadersProvider()
-								 ->getHeader( $name );
-		$this->assertEquals( $value, $result );
 	}
 
 	public function testSetHeaderReturnsResponse(): void
@@ -184,10 +180,11 @@ class ResponseTest extends TestCase
 	// unsetHeader
 	public function testUnsetHeaderUnsetsHeader(): void
 	{
-		$headers = $this->response->getHeadersProvider();
-		$this->assertNotNull( $headers->getHeader( self::HEADER_NAME ) );
-		$this->response->unsetHeader( self::HEADER_NAME );
-		$this->assertNull( $headers->getHeader( self::HEADER_NAME ) );
+		$name = 'X-Powered-By';
+		$this->headersProvider->expects( $this->once() )
+							  ->method( 'unsetHeader' )
+							  ->with( $name );
+		$this->response->unsetHeader( $name );
 	}
 
 	public function testUnsetHeaderReturnsResponse(): void
@@ -207,13 +204,10 @@ class ResponseTest extends TestCase
 	{
 		$name  = 'auth_token';
 		$value = 'abc123';
+		$this->cookieProvider->expects( $this->once() )
+							 ->method( 'setCookie' )
+							 ->with( $name, $value );
 		$this->response->setCookie( $name, $value );
-
-		$result = $this->response->getCookieProvider()
-								 ->getCookie( $name );
-
-		$this->assertNotNull( $result );
-		$this->assertEquals( $value, $result[ 'value' ] );
 	}
 
 	public function testSetCookieReturnsResponse(): void
@@ -231,9 +225,11 @@ class ResponseTest extends TestCase
 	// unsetCookie
 	public function testUnsetCookieUnsetsCookie(): void
 	{
-		$this->response->unsetCookie( 'my_cookie' );
-		$this->assertNull( $this->response->getCookieProvider()
-										  ->getCookie( 'my_cookie' ) );
+		$name = 'my_cookie';
+		$this->cookieProvider->expects( $this->once() )
+							 ->method( 'unsetCookie' )
+							 ->with( $name );
+		$this->response->unsetCookie( $name );
 	}
 
 	public function testUnsetCookieReturnsResponse(): void
@@ -262,28 +258,18 @@ class ResponseTest extends TestCase
 	}
 
 	// sendHeaders
-
-	/**
-	 * @runInSeparateProcess
-	 */
 	public function testSendHeadersSendsHeaders(): void
 	{
+		$this->headersProvider->expects( $this->once() )
+							  ->method( 'sendHeaders' );
 		$this->response->sendHeaders();
-		$headers = xdebug_get_headers();
-		$this->assertContains( self::HEADER_NAME . ': ' . self::HEADER_VALUE, $headers );
 	}
 
-	/**
-	 * @runInSeparateProcess
-	 */
 	public function testSendHeadersReturnsResponse(): void
 	{
 		$this->assertInstanceOf( Response::class, $this->response->sendHeaders() );
 	}
 
-	/**
-	 * @runInSeparateProcess
-	 */
 	public function testSendHeadersThrowsIfHeadersProviderNotExists(): void
 	{
 		$response = new Response();
@@ -292,28 +278,18 @@ class ResponseTest extends TestCase
 	}
 
 	//sendCookies
-
-	/**
-	 * @runInSeparateProcess
-	 */
 	public function testSendCookiesSendsCookies(): void
 	{
+		$this->cookieProvider->expects( $this->once() )
+							 ->method( 'sendCookies' );
 		$this->response->sendCookies();
-		$headers = xdebug_get_headers();
-		$this->assertStringStartsWith( 'Set-Cookie: my_cookie', $headers[ 0 ] );
 	}
 
-	/**
-	 * @runInSeparateProcess
-	 */
 	public function testSendCookiesReturnsResponse(): void
 	{
 		$this->assertInstanceOf( Response::class, $this->response->sendCookies() );
 	}
 
-	/**
-	 * @runInSeparateProcess
-	 */
 	public function testSendCookiesThrowsIfCookiesProviderNotExists(): void
 	{
 		$response = new Response();
@@ -322,10 +298,6 @@ class ResponseTest extends TestCase
 	}
 
 	// send
-
-	/**
-	 * @runInSeparateProcess
-	 */
 	public function testSendCallsSendHttpStatus(): void
 	{
 		$this->response->status( 413 )
@@ -333,34 +305,21 @@ class ResponseTest extends TestCase
 		$this->assertEquals( 413, http_response_code() );
 	}
 
-	/**
-	 * @runInSeparateProcess
-	 */
 	public function testSendCallsSendCookies(): void
 	{
-		$this->response->getHeadersProvider()
-					   ->unsetHeader( self::HEADER_NAME );
+		$this->cookieProvider->expects( $this->once() )
+							 ->method( 'sendCookies' );
 		$this->response->send();
-		$headers = xdebug_get_headers();
-		$this->assertCount( 1, $headers );
-		$this->assertStringStartsWith( 'Set-Cookie: my_cookie', $headers[ 0 ] );
 	}
 
-	/**
-	 * @runInSeparateProcess
-	 */
 	public function testSendCallsSendHeaders(): void
 	{
+		$this->headersProvider->expects($this->once())
+			->method('sendHeaders');
 		$this->response->unsetCookie( 'my_cookie' )
 					   ->send();
-		$headers = xdebug_get_headers();
-		$this->assertCount( 1, $headers );
-		$this->assertEquals( self::HEADER_NAME . ': ' . self::HEADER_VALUE, $headers[ 0 ] );
 	}
 
-	/**
-	 * @runInSeparateProcess
-	 */
 	public function testSendEchoesResponseBody(): void
 	{
 		ob_start();
@@ -371,9 +330,6 @@ class ResponseTest extends TestCase
 		$this->assertEquals( 'Hello Exphpress!', $output );
 	}
 
-	/**
-	 * @runInSeparateProcess
-	 */
 	public function testSendReplacesBodyIfReplaceBodyIsTrue(): void
 	{
 		$this->response->setResponseBody( 'Hello Exphpress!' );
@@ -384,9 +340,6 @@ class ResponseTest extends TestCase
 		$this->assertEquals( 'Hello PHP!', $output );
 	}
 
-	/**
-	 * @runInSeparateProcess
-	 */
 	public function testSendAppendstoBodyIfReplaceBodyIsFalse(): void
 	{
 		$this->response->setResponseBody( 'Hello Exphpress!' );
