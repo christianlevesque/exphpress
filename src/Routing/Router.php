@@ -7,11 +7,45 @@ use Crossview\Exphpress\Http\Response;
 
 class Router
 {
-	protected static Router $instance;
-	protected array         $uri        = [];
-	protected array         $routes     = [];
-	protected array         $parameters = [];
-	protected Route         $matchedRoute;
+	protected static ?Router $instance;
+	protected array          $uri = [];
+
+	/**
+	 * @var Route[] The Routes registered on the Router
+	 */
+	protected array $routes = [];
+
+	/**
+	 * Routes getter
+	 *
+	 * @return Route[]
+	 */
+	public function getRoutes(): array
+	{
+		return $this->routes;
+	}
+
+	protected Route $matchedRoute;
+
+	/**
+	 * Getter for the current matched Route
+	 *
+	 * @return Route|null Returns the Route matching the current request's URI, or null if no Route has been matched
+	 */
+	public function getMatchedRoute(): Route
+	{
+		return $this->matchedRoute;
+	}
+
+	/**
+	 * Setter for the current matched Route
+	 *
+	 * @param Route $route
+	 */
+	public function setMatchedRoute( Route $route ): void
+	{
+		$this->matchedRoute = $route;
+	}
 
 	/**
 	 * Router constructor
@@ -22,12 +56,22 @@ class Router
 
 	public static function getInstance(): Router
 	{
-		if ( !isset( self::$instance ) )
+		if ( !self::hasInstance() )
 		{
 			self::$instance = new self;
 		}
 
 		return self::$instance;
+	}
+
+	public static function hasInstance(): bool
+	{
+		return isset( self::$instance );
+	}
+
+	public static function deleteInstance(): void
+	{
+		self::$instance = null;
 	}
 
 	/**
@@ -41,37 +85,17 @@ class Router
 	 */
 	public function route( string $uri ): Route
 	{
-		foreach ( $this->routes as $route )
+		for ( $i = 0; $i < count( $this->routes ); $i++ )
 		{
-			if ( $uri == (string) $route )
+			if ( $uri === (string) $this->routes[ $i ] )
 			{
-				return $route;
+				return $this->routes[ $i ];
 			}
 		}
 
 		$routesLength = array_push( $this->routes, new Route( $uri ) );
 
 		return $this->routes[ $routesLength - 1 ];
-	}
-
-	/**
-	 * Getter for the current matched Route
-	 *
-	 * @return Route|null Returns the Route matching the current request's URI, or null if no Route has been matched
-	 */
-	public function getMatchedRoute(): Route
-	{
-		return $this->matchedRoute;
-	}
-
-	/**
-	 * Getter for the URI parameter values
-	 *
-	 * @return array Returns an associative array of the parameter values for the current request as parameter => value pairs. If no parameters exist on the current request, or if no route has yet been matched, an empty array will be returned.
-	 */
-	public function getParameters(): array
-	{
-		return $this->parameters;
 	}
 
 	/**
@@ -200,7 +224,7 @@ class Router
 
 		if ( isset( $this->matchedRoute ) )
 		{
-			$this->matchedRoute->executehandler( $request, $response );
+			$this->matchedRoute->execute( $request, $response );
 		}
 	}
 }
