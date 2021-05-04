@@ -30,7 +30,7 @@ class Response
 	 *
 	 * @param int $code The HTTP Status Code
 	 *
-	 * @return $this Returns the instance of the Response object (to enable method chaining)
+	 * @return $this
 	 */
 	public function setResponseCode( int $code ): Response
 	{
@@ -46,7 +46,7 @@ class Response
 	 *
 	 * @param int $code The HTTP Status Code
 	 *
-	 * @return Response
+	 * @return $this
 	 */
 	public function status( int $code ): Response
 	{
@@ -75,7 +75,7 @@ class Response
 	 *
 	 * @param string $body The value to be sent as the response body
 	 *
-	 * @return Response
+	 * @return $this
 	 */
 	public function setResponseBody( string $body ): Response
 	{
@@ -91,7 +91,7 @@ class Response
 	 *
 	 * @param string $partial The value to be appended to the existing response body
 	 *
-	 * @return Response
+	 * @return $this
 	 */
 	public function appendToResponseBody( string $partial ): Response
 	{
@@ -205,7 +205,7 @@ class Response
 	 * @param string $name  The name of the header to be set
 	 * @param mixed  $value The value of the header to be set
 	 *
-	 * @return Response Returns the instance of the Response object (to enable method chaining)
+	 * @return $this
 	 */
 	public function setHeader( string $name, $value ): Response
 	{
@@ -238,9 +238,9 @@ class Response
 	 * @param mixed  $value   The value of the cookie to be set
 	 * @param array  $options (optional) The options for the cookie to be set
 	 *
-	 * @return Response
+	 * @return $this
 	 */
-	public function setCookie( string $name, $value, $options = [] ): Response
+	public function setCookie( string $name, $value, array $options = [] ): Response
 	{
 		// Use getCookieProvider to ensure it throws the correct exception if it hasn't been set
 		$this->getCookieProvider()
@@ -251,18 +251,24 @@ class Response
 	/**
 	 * Unqueues a previously queued cookie
 	 *
-	 * This method does NOT delete a cookie from a user's browser. This method simply removed a cookie from the cookie queue. To delete a cookie from a user's browser, use Response::deleteCookie.
+	 * This method does NOT delete a cookie from a user's browser. This method simply removes a cookie from the cookie queue. To delete a cookie from a user's browser, use Response::deleteCookie.
 	 *
 	 * @param string $name The name of the cookie to be unset
 	 *
-	 * @return Response
+	 * @return $this
 	 */
 	public function unsetCookie( string $name ): Response
 	{
 		// Use getCookieProvider to ensure it throws the correct exception if it hasn't been set
 		$this->getCookieProvider()
 			 ->unsetCookie( $name );
+		return $this;
+	}
 
+	public function deleteCookie( string $name, array $options = [] ): Response
+	{
+		$this->getCookieProvider()
+			 ->deleteCookie( $name, $options );
 		return $this;
 	}
 
