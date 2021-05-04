@@ -14,16 +14,12 @@ use PHPUnit\Framework\TestCase;
 class MiddlewareContainerTest extends TestCase
 {
 	private MiddlewareContainer $container;
-	private Request             $request;
 
 	protected function setUp(): void
 	{
-		$this->request = new Request();
-		$this->request->setQueryParameterProvider( new WritableArrayValueProvider( [] ) );
-		$this->container = new MiddlewareContainer( function ()
-		{
-			$this->request->setServerProvider( new ArrayValueProvider( [ 'REQUEST_METHOD' => 'GET' ] ) );
-		} );
+		$request         = $this->createStub( Request::class );
+		$response        = $this->createStub( Response::class );
+		$this->container = new MiddlewareContainer( $request, $response );
 	}
 
 	public function testCanBeCreated(): void
@@ -50,25 +46,38 @@ class MiddlewareContainerTest extends TestCase
 		$this->assertInstanceOf( MiddlewareContainer::class, $container );
 	}
 
-	public function testBuildPipelineReturnsMiddlewareContainer(): void
+	public function testGetMiddlewareReturnsMiddlewareArray(): void
 	{
-		$container = $this->container->buildPipeline( $this->request, new Response( '' ) );
-		$this->assertInstanceOf( MiddlewareContainer::class, $container );
-	}
-
-	public function testBuildPipelineBuildsClosurePipeline(): void
-	{
-		$this->container->register( new TestImpl2() );
-		$this->container->buildPipeline( $this->request, new Response( '' ) );
-		$this->container->execute();
-
-		$this->assertEquals( 42, $this->request->getQueryParameter( 'the question' ) );
+		$middleware = $this->container->getMiddleware();
+		$this->assertIsArray( $middleware );
+		$this->assertCount( 0, $middleware );
+		$this->container->register( new TestImpl() );
+		$this->assertCount( 1, $this->container->getMiddleware() );
 	}
 
 	public function testExecuteExecutesPipeline(): void
 	{
-		$this->container->execute();
-		$this->assertEquals( 'GET', $this->request->getMethod() );
+		$request  = $this->createStub( Request::class );
+		$response = $this->createMock( Response::class );
+		$response->expects( $this->once() )
+				 ->method( 'send' )
+				 ->with( "I'm done!" );
+
+		$container = new MiddlewareContainer( $request, $response );
+		$container->register( new TestImpl() );
+		$container->execute();
+	}
+
+	public function testExecuteDoesNothingIfNoPipeline(): void
+	{
+		$request  = $this->createStub( Request::class );
+		$response = $this->createMock( Response::class );
+		$response->expects( $this->never() )
+				 ->method( 'send' )
+				 ->withAnyParameters();
+
+		$container = new MiddlewareContainer( $request, $response );
+		$container->execute();
 	}
 }
 
@@ -76,14 +85,6 @@ class TestImpl implements MiddlewareInterface
 {
 	public function handle( Request $request, Response $response, Closure $next )
 	{
-		// Test implementation, should do nothing
-	}
-}
-
-class TestImpl2 implements MiddlewareInterface
-{
-	public function handle( Request $request, Response $response, Closure $next )
-	{
-		$request->setQueryParameter( 'the question', 42 );
+		$response->send( "I'm done!" );
 	}
 }

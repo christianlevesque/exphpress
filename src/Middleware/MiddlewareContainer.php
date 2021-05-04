@@ -14,21 +14,27 @@ class MiddlewareContainer
 	protected array $middleware = [];
 
 	/**
-	 * @var Closure The middleware pipeline
-	 */
-	protected Closure $pipeline;
-
-	public function __construct( Closure $initialPipeline )
-	{
-		$this->pipeline = $initialPipeline;
-	}
-
-	/**
 	 * @return MiddlewareInterface[]
 	 */
 	public function getMiddleware(): array
 	{
 		return $this->middleware;
+	}
+
+	/**
+	 * @var Request Request instance
+	 */
+	protected Request $request;
+
+	/**
+	 * @var Response Response instance
+	 */
+	protected Response $response;
+
+	public function __construct( Request $request, Response $response )
+	{
+		$this->request  = $request;
+		$this->response = $response;
 	}
 
 	/**
@@ -40,40 +46,7 @@ class MiddlewareContainer
 	 */
 	public function register( MiddlewareInterface $m ): MiddlewareContainer
 	{
-		// Fill the array backwards so we don't have to reverse the array when building the pipeline
-		array_unshift( $this->middleware, $m );
-		return $this;
-	}
-
-	/**
-	 * Constructs the middleware pipeline using all the middlewares on the container
-	 *
-	 * @param Request  $request  The HTTP Request
-	 * @param Response $response The HTTP Response
-	 *
-	 * @return $this
-	 */
-	public function buildPipeline( Request $request, Response $response ): MiddlewareContainer
-	{
-		// Grab a local reference to the pipeline so the closure can pull it into scope
-		$pipeline = $this->pipeline;
-
-		// Wrap each new middleware around the existing pipeline
-		// Using a for loop because an apparent bug throws off the code path count for foreach loops
-		for ( $i = 0; $i < count( $this->middleware ); $i++ )
-		{
-			$currentMiddleware = $this->middleware[ $i ];
-			// The closure needs to reference the current middleware, the request, the response, and the existing pipeline
-			// The existing pipeline will be used as next() for the new pipeline
-			$pipeline = function () use ( $currentMiddleware, &$request, &$response, $pipeline )
-			{
-				$currentMiddleware->handle( $request, $response, $pipeline );
-			};
-		}
-
-		// Save the pipeline back to the MiddlewareContainer
-		$this->pipeline = $pipeline;
-
+		array_push( $this->middleware, $m );
 		return $this;
 	}
 
@@ -82,6 +55,13 @@ class MiddlewareContainer
 	 */
 	public function execute(): void
 	{
-		( $this->pipeline )();
+		$current = array_shift( $this->middleware );
+		if ( $current !== null )
+		{
+			$current->handle( $this->request, $this->response, function ()
+			{
+				$this->execute();
+			} );
+		}
 	}
 }
