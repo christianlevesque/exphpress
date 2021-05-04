@@ -20,19 +20,29 @@ class Route
 	protected array $handlers;
 
 	/**
+	 * Gets the complete list of route handlers
+	 *
+	 * @return array The list of route handlers as an associative array of HTTP verb => handler pairs
+	 */
+	public function getHandlers(): array
+	{
+		return $this->handlers;
+	}
+
+	/**
 	 * @var string[] An array representing valid HTTP methods. This array also includes 'ANY', which is used to respond to an otherwise-unhandled HTTP method
 	 */
 	protected array $methods = [
-		"ANY",
-		"CONNECT",
-		"DELETE",
-		"GET",
-		"HEAD",
-		"OPTIONS",
-		"PATCH",
-		"POST",
-		"PUT",
-		"TRACE"
+		'ANY',
+		'CONNECT',
+		'DELETE',
+		'GET',
+		'HEAD',
+		'OPTIONS',
+		'PATCH',
+		'POST',
+		'PUT',
+		'TRACE'
 	];
 
 	/**
@@ -42,7 +52,7 @@ class Route
 	 */
 	public function __construct( string $route )
 	{
-		$this->route       = $route;
+		$this->route    = $route;
 		$this->handlers = array();
 	}
 
@@ -57,13 +67,20 @@ class Route
 	}
 
 	/**
-	 * Gets the complete list of route handlers
+	 * Gets the handler for a specifc method, or null if not set
 	 *
-	 * @return array The list of route handlers as an associative array of HTTP verb => handler pairs
+	 * @param string $method
+	 *
+	 * @return Closure|null
 	 */
-	public function getHandlers(): array
+	public function getHandler( string $method ): ?Closure
 	{
-		return $this->handlers;
+		if ( isset( $this->handlers[ $method ] ) )
+		{
+			return $this->handlers[ $method ];
+		}
+
+		return null;
 	}
 
 	/**
@@ -71,7 +88,7 @@ class Route
 	 *
 	 * This method works under the hood of each HTTP verb method to add a route handler in a generic way.
 	 *
-	 * @param string              $method     The HTTP verb to respond to
+	 * @param string  $method  The HTTP verb to respond to
 	 * @param Closure $handler The handler used to respond to the route via a given HTTP verb
 	 *
 	 * @return $this Returns the instance of the Route object (to enable method chaining)
@@ -87,103 +104,129 @@ class Route
 		return $this;
 	}
 
+	public function any( Closure $handler ): Route
+	{
+		return $this->addHandler( 'ANY', $handler );
+	}
+
 	/**
 	 * A wrapper function around Route::addHandler for CONNECT requests
 	 *
 	 * @param Closure $handler the function to execute when the Route is accessed
+	 *
 	 * @return $this
 	 */
 	public function connect( Closure $handler ): Route
 	{
-		return $this->addHandler( "CONNECT", $handler );
+		return $this->addHandler( 'CONNECT', $handler );
 	}
 
 	/**
 	 * A wrapper function around Route::addHandler for DELETE requests
 	 *
 	 * @param Closure $handler the function to execute when the Route is accessed
+	 *
 	 * @return $this
 	 */
 	public function delete( Closure $handler ): Route
 	{
-		return $this->addHandler( "DELETE", $handler );
+		return $this->addHandler( 'DELETE', $handler );
 	}
 
 	/**
 	 * A wrapper function around Route::addHandler for GET requests
 	 *
 	 * @param Closure $handler the function to execute when the Route is accessed
+	 *
 	 * @return $this
 	 */
 	public function get( Closure $handler ): Route
 	{
-		return $this->addHandler( "GET", $handler );
+		return $this->addHandler( 'GET', $handler );
 	}
 
 	/**
 	 * A wrapper function around Route::addHandler for HEAD requests
 	 *
 	 * @param Closure $handler the function to execute when the Route is accessed
+	 *
 	 * @return $this
 	 */
 	public function head( Closure $handler ): Route
 	{
-		return $this->addHandler( "HEAD", $handler );
+		return $this->addHandler( 'HEAD', $handler );
 	}
 
 	/**
 	 * A wrapper function around Route::addHandler for OPTIONS requests
 	 *
 	 * @param Closure $handler the function to execute when the Route is accessed
+	 *
 	 * @return $this
 	 */
 	public function options( Closure $handler ): Route
 	{
-		return $this->addHandler( "OPTIONS", $handler );
+		return $this->addHandler( 'OPTIONS', $handler );
 	}
 
 	/**
 	 * A wrapper function around Route::addHandler for PATCH requests
 	 *
 	 * @param Closure $handler the function to execute when the Route is accessed
+	 *
 	 * @return $this
 	 */
 	public function patch( Closure $handler ): Route
 	{
-		return $this->addHandler( "PATCH", $handler );
+		return $this->addHandler( 'PATCH', $handler );
 	}
 
 	/**
 	 * A wrapper function around Route::addHandler for POST requests
 	 *
 	 * @param Closure $handler the function to execute when the Route is accessed
+	 *
 	 * @return $this
 	 */
 	public function post( Closure $handler ): Route
 	{
-		return $this->addHandler( "POST", $handler );
+		return $this->addHandler( 'POST', $handler );
 	}
 
 	/**
 	 * A wrapper function around Route::addHandler for PUT requests
 	 *
 	 * @param Closure $handler the function to execute when the Route is accessed
+	 *
 	 * @return $this
 	 */
 	public function put( Closure $handler ): Route
 	{
-		return $this->addHandler( "PUT", $handler );
+		return $this->addHandler( 'PUT', $handler );
 	}
 
 	/**
 	 * A wrapper function around Route::addHandler for TRACE requests
 	 *
 	 * @param Closure $handler the function to execute when the Route is accessed
+	 *
 	 * @return $this
 	 */
 	public function trace( Closure $handler ): Route
 	{
-		return $this->addHandler( "TRACE", $handler );
+		return $this->addHandler( 'TRACE', $handler );
+	}
+
+	private function generateAllowHandler(): Closure
+	{
+		$methods = join( ', ', array_keys( $this->handlers ) );
+
+		return function ( Request $request, Response $response ) use ( $methods )
+		{
+			$response->status( 405 )
+					 ->setHeader( 'Allow', $methods )
+					 ->send();
+		};
 	}
 
 	/**
@@ -194,35 +237,12 @@ class Route
 	 * @param Request  $request
 	 * @param Response $response
 	 */
-	public function executehandler( Request $request, Response $response )
+	public function execute( Request $request, Response $response )
 	{
-		if ( isset( $this->handlers[ $request->method ] ) )
-		{
-			$this->handlers[ $request->method ]( $request, $response );
-		} else
-		{
-			if ( isset( $this->handlers[ 'ALL' ] ) )
-			{
-				$this->handlers[ 'ALL' ]( $request, $response );
-			} else
-			{
-				$allowValue = '';
-				$methods    = array_keys( $this->handlers );
+		$handler = $this->getHandler( $request->getMethod() )
+			?? $this->getHandler( 'ANY' )
+			?? $this->generateAllowHandler();
 
-				foreach ( $methods as $method )
-				{
-					$allowValue .= $method . ', ';
-				}
-
-				if ( strlen( $allowValue ) > 0 )
-				{
-					$allowValue = substr( $allowValue, 0, -2 );
-				}
-
-				$response->status( 405 )
-						 ->setHeader( 'Allow', $allowValue )
-						 ->send();
-			}
-		}
+		$handler( $request, $response );
 	}
 }
