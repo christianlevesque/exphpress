@@ -2,7 +2,6 @@
 
 namespace Crossview\Exphpress\Middleware;
 
-use \Closure;
 use Crossview\Exphpress\Http\Request;
 use Crossview\Exphpress\Http\Response;
 
