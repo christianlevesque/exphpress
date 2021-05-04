@@ -244,6 +244,28 @@ class ResponseTest extends TestCase
 		$response->setCookie( '', '' );
 	}
 
+	// deleteCookie
+	public function testDeleteCookieDeletesCookie(): void
+	{
+		$name = 'my_cookie';
+		$this->cookieProvider->expects( $this->once() )
+							 ->method( 'deleteCookie' )
+							 ->with( $name, [] );
+		$this->response->deleteCookie( $name );
+	}
+
+	public function testDeleteCookieReturnsResponse(): void
+	{
+		$this->assertInstanceOf( Response::class, $this->response->deleteCookie( '' ) );
+	}
+
+	public function testDeleteCookieThrowsIfCookieProviderNotExists(): void
+	{
+		$response = new Response();
+		$this->expectErrorMessage( 'You are attempting to access the Response CookieProvider, but none has been configured.' );
+		$response->deleteCookie( '' );
+	}
+
 	// sendHttpStatus
 	public function testSendHttpStatusSendsStatusCode(): void
 	{
@@ -314,8 +336,8 @@ class ResponseTest extends TestCase
 
 	public function testSendCallsSendHeaders(): void
 	{
-		$this->headersProvider->expects($this->once())
-			->method('sendHeaders');
+		$this->headersProvider->expects( $this->once() )
+							  ->method( 'sendHeaders' );
 		$this->response->unsetCookie( 'my_cookie' )
 					   ->send();
 	}
