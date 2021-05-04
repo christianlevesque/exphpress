@@ -20,10 +20,9 @@ class MiddlewareContainerTest extends TestCase
 	{
 		$this->request = new Request();
 		$this->request->setQueryParameterProvider( new WritableArrayValueProvider( [] ) );
-		$request         = $this->request;
-		$this->container = new MiddlewareContainer( function () use ( &$request )
+		$this->container = new MiddlewareContainer( function ()
 		{
-			$request->setServerProvider( new ArrayValueProvider( [ 'REQUEST_METHOD' => 'GET' ] ) );
+			$this->request->setServerProvider( new ArrayValueProvider( [ 'REQUEST_METHOD' => 'GET' ] ) );
 		} );
 	}
 
