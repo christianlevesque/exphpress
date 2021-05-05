@@ -9,11 +9,23 @@ use PHPUnit\Framework\TestCase;
 
 class RequestTest extends TestCase
 {
-	private Request $request;
+	private Request                    $request;
+	private ArrayValueProvider         $serverProvider;
+	private ArrayValueProvider         $cookieProvider;
+	private WritableArrayValueProvider $queryParameterProvider;
+	private WritableArrayValueProvider $requestParameterProvider;
 
 	protected function setUp(): void
 	{
-		$this->request = new Request();
+		$this->request                  = new Request();
+		$this->serverProvider           = $this->createMock( ArrayValueProvider::class );
+		$this->cookieProvider           = $this->createMock( ArrayValueProvider::class );
+		$this->queryParameterProvider   = $this->createMock( WritableArrayValueProvider::class );
+		$this->requestParameterProvider = $this->createMock( WritableArrayValueProvider::class );
+		$this->request->setServerProvider( $this->serverProvider );
+		$this->request->setCookieProvider( $this->cookieProvider );
+		$this->request->setQueryParameterProvider( $this->queryParameterProvider );
+		$this->request->setRequestParameterProvider( $this->requestParameterProvider );
 	}
 
 	public function testCanBeCreated(): void
@@ -23,7 +35,10 @@ class RequestTest extends TestCase
 
 	public function testGetMethodReturnsRequestMethodIfServerProviderSet(): void
 	{
-		$this->request->setServerProvider( new ArrayValueProvider( [ 'REQUEST_METHOD' => 'POST' ] ) );
+		$this->serverProvider->expects($this->once())
+			->method('get')
+			->with('REQUEST_METHOD')
+			->willReturn('POST');
 		$result = $this->request->getMethod();
 
 		$this->assertNotNull( $result );
