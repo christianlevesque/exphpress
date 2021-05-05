@@ -5,9 +5,12 @@ namespace Crossview\Exphpress\Http;
 use Crossview\Exphpress\Exceptions\ExphpressException;
 use Crossview\Exphpress\Providers\ReadableProvider;
 use Crossview\Exphpress\Providers\ReadableWritableProvider;
+use Crossview\Exphpress\Utilities\CanProcessPaths;
 
 class Request
 {
+	use CanProcessPaths;
+
 	/**
 	 * @var ReadableProvider Represents the $_SERVER array
 	 */
@@ -231,10 +234,7 @@ class Request
 	public function setPath( string $newPath ): Request
 	{
 		$this->path       = $newPath;
-		$this->parsedPath = preg_split( '/\//', $newPath );
-
-		// The first element will be an empty string, what came before the leading slash
-		array_shift( $this->parsedPath );
+		$this->parsedPath = $this->processPath( $newPath );
 
 		return $this;
 	}
