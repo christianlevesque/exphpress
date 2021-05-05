@@ -23,6 +23,7 @@ class RouterTest extends TestCase
 		Router::deleteInstance();
 	}
 
+	// instance stuff
 	public function testCanBeCreated(): void
 	{
 		$this->assertInstanceOf( Router::class, $this->router );
@@ -44,6 +45,23 @@ class RouterTest extends TestCase
 		$this->assertFalse( Router::hasInstance() );
 	}
 
+	// getRoutes
+	public function testGetRoutesReturnsRoutes(): void
+	{
+		$routes = $this->router->getRoutes();
+		$this->assertIsArray( $routes );
+		$this->assertCount( 1, $routes );
+		$this->assertEquals( '/default/route', (string) $routes[ 0 ] );
+	}
+
+	// matchedRoute getter/setter
+	public function testGetMatchedRouteReturnsMatchedRoute(): void
+	{
+		$this->router->setMatchedRoute($this->router->route('/default/route'));
+		$this->assertInstanceOf(Route::class, $this->router->getMatchedRoute());
+	}
+
+	// route
 	public function testRouteReturnsNewRouteIfNotExists(): void
 	{
 		$this->assertCount( 1, $this->router->getRoutes() );
