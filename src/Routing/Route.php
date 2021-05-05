@@ -3,7 +3,7 @@
 namespace Crossview\Exphpress\Routing;
 
 use \Closure;
-use Crossview\Exphpress\Utilities\RouteMatcher;
+use Crossview\Exphpress\Utilities\RouteProcessor;
 use \InvalidArgumentException;
 use Crossview\Exphpress\Utilities\CanProcessPaths;
 use Crossview\Exphpress\Http\Request;
@@ -76,7 +76,7 @@ class Route
 
 		// Parse the path and set up route parameters
 		$explodedRoute     = $this->processPath( $route );
-		$matcher           = new RouteMatcher;
+		$matcher           = new RouteProcessor;
 		$this->parsedRoute = $matcher->generateUrlDataMap( $explodedRoute );
 	}
 

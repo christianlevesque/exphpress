@@ -4,7 +4,7 @@ namespace Crossview\Exphpress\Utilities;
 
 use \InvalidArgumentException;
 
-class RouteMatcher
+class RouteProcessor
 {
 	protected array $acceptableDataTypes = [
 		'bool',

@@ -2,16 +2,16 @@
 
 namespace Utilities;
 
-use Crossview\Exphpress\Utilities\RouteMatcher;
+use Crossview\Exphpress\Utilities\RouteProcessor;
 use PHPUnit\Framework\TestCase;
 
-class RouteMatcherTest extends TestCase
+class RouteProcessorTest extends TestCase
 {
-	private RouteMatcher $matcher;
+	private RouteProcessor $matcher;
 
 	protected function setUp(): void
 	{
-		$this->matcher = new RouteMatcher;
+		$this->matcher = new RouteProcessor;
 	}
 
 	// generateUrlDataMap
