@@ -13,6 +13,31 @@ class RouteMatcher
 		'int'
 	];
 
+	public function generateUrlDataMap( array $url ): array
+	{
+		$routes = [];
+
+		for ( $i = 0; $i < count( $url ); $i++ )
+		{
+			$segment = $url[ $i ];
+			$data    = [];
+			if ( $this->isUrlParameter( $segment ) )
+			{
+				$data[ 'param' ] = true;
+				$data[ 'path' ]  = $this->parseUrlParameterName( $segment );
+				$data[ 'type' ]  = $this->parseUrlParameterTypes( $segment );
+			} else
+			{
+				$data[ 'param' ] = false;
+				$data[ 'path' ]  = $segment;
+			}
+
+			$routes[] = $data;
+		}
+
+		return $routes;
+	}
+
 	public function validateUrlParameterTypes( array $types ): array
 	{
 		return array_map( function ( $type )

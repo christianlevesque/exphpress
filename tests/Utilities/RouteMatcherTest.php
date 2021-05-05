@@ -14,6 +14,55 @@ class RouteMatcherTest extends TestCase
 		$this->matcher = new RouteMatcher;
 	}
 
+	// generateUrlDataMap
+	public function testGenerateUrlDataMapDoesNothingIfUrlEmpty(): void
+	{
+		$parsedRoute = $this->matcher->generateUrlDataMap( [] );
+		$this->assertEmpty( $parsedRoute );
+	}
+
+	public function testGenerateUrlDataMapCorrectlyHandlesParameters(): void
+	{
+		$parsedRoute = $this->matcher->generateUrlDataMap( [ ':some_value' ] );
+		$segment     = $parsedRoute[ 0 ];
+
+		$this->assertArrayHasKey( 'param', $segment );
+		$this->assertArrayHasKey( 'path', $segment );
+		$this->assertArrayHasKey( 'type', $segment );
+		$this->assertTrue( $segment[ 'param' ] );
+		$this->assertEquals( 'some_value', $segment[ 'path' ] );
+		$this->assertIsArray( $segment[ 'type' ] );
+		$this->assertCount( 1, $segment[ 'type' ] );
+		$this->assertEquals( 'any', $segment[ 'type' ][ 0 ] );
+	}
+
+	public function testGenerateUrlDataMapCorrectlyHandlesParametersWithTypes(): void
+	{
+		$parsedRoute = $this->matcher->generateUrlDataMap( [ ':some_value<int|bool>' ] );
+		$segment     = $parsedRoute[ 0 ];
+
+		$this->assertArrayHasKey( 'param', $segment );
+		$this->assertArrayHasKey( 'path', $segment );
+		$this->assertArrayHasKey( 'type', $segment );
+		$this->assertTrue( $segment[ 'param' ] );
+		$this->assertEquals( 'some_value', $segment[ 'path' ] );
+		$this->assertIsArray( $segment[ 'type' ] );
+		$this->assertCount( 2, $segment[ 'type' ] );
+		$this->assertEquals( 'int', $segment[ 'type' ][ 0 ] );
+		$this->assertEquals( 'bool', $segment[ 'type' ][ 1 ] );
+	}
+
+	public function testGenerateUrlDataMapCorrectlyHandlesRegularRoute(): void
+	{
+		$parsedRoute = $this->matcher->generateUrlDataMap( [ 'home' ] );
+		$segment     = $parsedRoute[ 0 ];
+
+		$this->assertArrayHasKey( 'param', $segment );
+		$this->assertArrayHasKey( 'path', $segment );
+		$this->assertFalse( $segment[ 'param' ] );
+		$this->assertEquals( 'home', $segment[ 'path' ] );
+	}
+
 	// validateUrlParameterTypes
 	public function testValidateUrlParameterTypesReturnsTypesIfValid(): void
 	{
