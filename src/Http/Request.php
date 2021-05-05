@@ -168,10 +168,6 @@ class Request
 		return $this;
 	}
 
-	public function __construct(string $url) {
-		$this->originalUrl = $url;
-	}
-
 	/**
 	 * @var string The original root-relative URL for the request
 	 */
@@ -185,6 +181,20 @@ class Request
 	public function getOriginalUrl(): string
 	{
 		return $this->originalUrl;
+	}
+
+	/**
+	 * Setter for Request::originalUrl
+	 *
+	 * @param string $newUrl
+	 *
+	 * @return $this
+	 */
+	public function setOriginalUrl( string $newUrl ): Request
+	{
+		$this->originalUrl = $newUrl;
+
+		return $this;
 	}
 
 	/**

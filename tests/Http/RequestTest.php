@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 
 class RequestTest extends TestCase
 {
+	private const PATH = '/default/path?arg1=hello+world&arg2=27&arg3=true';
 	private Request                    $request;
 	private ArrayValueProvider         $serverProvider;
 	private ArrayValueProvider         $cookieProvider;
@@ -17,15 +18,16 @@ class RequestTest extends TestCase
 
 	protected function setUp(): void
 	{
-		$this->request                  = new Request( '/default/path' );
+		$this->request                  = new Request();
 		$this->serverProvider           = $this->createMock( ArrayValueProvider::class );
 		$this->cookieProvider           = $this->createMock( ArrayValueProvider::class );
 		$this->queryParameterProvider   = $this->createMock( WritableArrayValueProvider::class );
 		$this->requestParameterProvider = $this->createMock( WritableArrayValueProvider::class );
-		$this->request->setServerProvider( $this->serverProvider );
-		$this->request->setCookieProvider( $this->cookieProvider );
-		$this->request->setQueryParameterProvider( $this->queryParameterProvider );
-		$this->request->setRequestParameterProvider( $this->requestParameterProvider );
+		$this->request->setServerProvider( $this->serverProvider )
+					  ->setCookieProvider( $this->cookieProvider )
+					  ->setQueryParameterProvider( $this->queryParameterProvider )
+					  ->setRequestParameterProvider( $this->requestParameterProvider )
+					  ->setOriginalUrl( self::PATH );
 	}
 
 	// constructor
@@ -43,7 +45,7 @@ class RequestTest extends TestCase
 	public function testGetServerProviderThrowsIfNotExists(): void
 	{
 		$this->expectErrorMessage( 'You are attempting to access the Request ServerProvider, but none has been configured.' );
-		$request = new Request( '' );
+		$request = new Request();
 		$request->getServerProvider();
 	}
 
@@ -63,7 +65,7 @@ class RequestTest extends TestCase
 	public function testGetQueryParameterProviderThrowsIfNotExists(): void
 	{
 		$this->expectErrorMessage( 'You are attempting to access the Request QueryParameterProvider, but none has been configured.' );
-		$request = new Request( '' );
+		$request = new Request();
 		$request->getQueryParameterProvider();
 	}
 
@@ -83,7 +85,7 @@ class RequestTest extends TestCase
 	public function testGetRequestParameterProviderThrowsIfNotExists(): void
 	{
 		$this->expectErrorMessage( 'You are attempting to access the Request RequestParameterProvider, but none has been configured.' );
-		$request = new Request( '' );
+		$request = new Request();
 		$request->getRequestParameterProvider();
 	}
 
@@ -103,7 +105,7 @@ class RequestTest extends TestCase
 	public function testGetCookieProviderThrowsIfNotExists(): void
 	{
 		$this->expectErrorMessage( 'You are attempting to access the Request CookieProvider, but none has been configured.' );
-		$request = new Request( '' );
+		$request = new Request();
 		$request->getCookieProvider();
 	}
 
@@ -114,12 +116,20 @@ class RequestTest extends TestCase
 		$this->request->setCookieProvider( new ArrayValueProvider( [] ) );
 	}
 
-	// getOriginalUrl
+	// originalUrl getter/setter
 	public function testGetOriginalUrlReturnsOriginalUrl(): void
 	{
-		$this->assertEquals( '/default/path', $this->request->getOriginalUrl() );
+		$this->assertEquals( self::PATH, $this->request->getOriginalUrl() );
 	}
 
+	public function setSetOriginalUrlSetsOriginalUrl(): void
+	{
+		$newUrl = '/something/new';
+		$this->request->setOriginalUrl( $newUrl );
+		$this->assertEquals( $newUrl, $this->request->getOriginalUrl() );
+	}
+
+	// getMethod
 	public function testGetMethodReturnsRequestMethodIfServerProviderSet(): void
 	{
 		$this->serverProvider->expects( $this->once() )
@@ -135,7 +145,7 @@ class RequestTest extends TestCase
 
 	public function testGetMethodThrowsIfServerProviderNotSet(): void
 	{
-		$request = new Request( '' );
+		$request = new Request();
 		$this->expectErrorMessage( 'Typed property Crossview\Exphpress\Http\Request::$serverProvider must not be accessed before initialization' );
 		$request->getMethod();
 	}
@@ -155,7 +165,7 @@ class RequestTest extends TestCase
 
 	public function testGetServerParameterThrowsIfServerProviderNotSet(): void
 	{
-		$request = new Request( '' );
+		$request = new Request();
 		$this->expectErrorMessage( 'Typed property Crossview\Exphpress\Http\Request::$serverProvider must not be accessed before initialization' );
 		$request->getServerParameter( '' );
 	}
@@ -177,7 +187,7 @@ class RequestTest extends TestCase
 
 	public function testGetQueryParameterThrowsIfQueryParameterProviderNotSet(): void
 	{
-		$request = new Request( '' );
+		$request = new Request();
 		$this->expectErrorMessage( 'Typed property Crossview\Exphpress\Http\Request::$queryParameterProvider must not be accessed before initialization' );
 		$request->getQueryParameter( '' );
 	}
@@ -199,7 +209,7 @@ class RequestTest extends TestCase
 
 	public function testSetQueryParameterThrowsIfQueryParameterProviderNotSet(): void
 	{
-		$request = new Request( '' );
+		$request = new Request();
 		$this->expectErrorMessage( 'Typed property Crossview\Exphpress\Http\Request::$queryParameterProvider must not be accessed before initialization' );
 		$request->setQueryParameter( '', true );
 	}
@@ -221,7 +231,7 @@ class RequestTest extends TestCase
 
 	public function testGetRequestParameterThrowsIfRequestParameterProviderNotSet(): void
 	{
-		$request = new Request( '' );
+		$request = new Request();
 		$this->expectErrorMessage( 'Typed property Crossview\Exphpress\Http\Request::$requestParameterProvider must not be accessed before initialization' );
 		$request->getRequestParameter( '' );
 	}
@@ -243,7 +253,7 @@ class RequestTest extends TestCase
 
 	public function testSetRequestParameterThrowsIfQueryParameterProviderNotSet(): void
 	{
-		$request = new Request( '' );
+		$request = new Request();
 		$this->expectErrorMessage( 'Typed property Crossview\Exphpress\Http\Request::$requestParameterProvider must not be accessed before initialization' );
 		$request->setRequestParameter( '', true );
 	}
@@ -265,7 +275,7 @@ class RequestTest extends TestCase
 
 	public function testGetCookieThrowsIfCookieProviderNotSet(): void
 	{
-		$request = new Request( '' );
+		$request = new Request();
 		$this->expectErrorMessage( 'Typed property Crossview\Exphpress\Http\Request::$cookieProvider must not be accessed before initialization' );
 		$request->getCookie( '' );
 	}
