@@ -129,6 +129,11 @@ class RequestTest extends TestCase
 		$this->assertEquals( $newUrl, $this->request->getOriginalUrl() );
 	}
 
+	public function testSetOriginalUrlReturnsRequest(): void
+	{
+		$this->assertInstanceOf( Request::class, $this->request->setOriginalUrl( '' ) );
+	}
+
 	// getMethod
 	public function testGetMethodReturnsRequestMethodIfServerProviderSet(): void
 	{
