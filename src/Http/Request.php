@@ -168,6 +168,25 @@ class Request
 		return $this;
 	}
 
+	public function __construct(string $url) {
+		$this->originalUrl = $url;
+	}
+
+	/**
+	 * @var string The original root-relative URL for the request
+	 */
+	protected string $originalUrl;
+
+	/**
+	 * Getter for Request::originalUrl
+	 *
+	 * @return string
+	 */
+	public function getOriginalUrl(): string
+	{
+		return $this->originalUrl;
+	}
+
 	/**
 	 * Fetches the HTTP request method for the current request
 	 *

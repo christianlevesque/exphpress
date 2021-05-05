@@ -17,7 +17,7 @@ class RequestTest extends TestCase
 
 	protected function setUp(): void
 	{
-		$this->request                  = new Request();
+		$this->request                  = new Request( '/default/path' );
 		$this->serverProvider           = $this->createMock( ArrayValueProvider::class );
 		$this->cookieProvider           = $this->createMock( ArrayValueProvider::class );
 		$this->queryParameterProvider   = $this->createMock( WritableArrayValueProvider::class );
@@ -28,9 +28,96 @@ class RequestTest extends TestCase
 		$this->request->setRequestParameterProvider( $this->requestParameterProvider );
 	}
 
+	// constructor
 	public function testCanBeCreated(): void
 	{
 		$this->assertInstanceOf( Request::class, $this->request );
+	}
+
+	// getServerProvider
+	public function testGetServerProviderReturnsServerProviderIfExists(): void
+	{
+		$this->assertInstanceOf( ArrayValueProvider::class, $this->request->getServerProvider() );
+	}
+
+	public function testGetServerProviderThrowsIfNotExists(): void
+	{
+		$this->expectErrorMessage( 'You are attempting to access the Request ServerProvider, but none has been configured.' );
+		$request = new Request( '' );
+		$request->getServerProvider();
+	}
+
+	// setServerProvider
+	public function testSetServerProviderThrowsIfAlreadyExists(): void
+	{
+		$this->expectErrorMessage( 'You are attempting to set the Request ServerProvider, but a ServerProvider has already been configured.' );
+		$this->request->setServerProvider( new ArrayValueProvider( [] ) );
+	}
+
+	// getQueryParameterProvider
+	public function testGetQueryParameterProviderReturnsQueryParameterProviderIfExists(): void
+	{
+		$this->assertInstanceOf( WritableArrayValueProvider::class, $this->request->getQueryParameterProvider() );
+	}
+
+	public function testGetQueryParameterProviderThrowsIfNotExists(): void
+	{
+		$this->expectErrorMessage( 'You are attempting to access the Request QueryParameterProvider, but none has been configured.' );
+		$request = new Request( '' );
+		$request->getQueryParameterProvider();
+	}
+
+	// setQueryParameterProvider
+	public function testSetQueryParameterProviderThrowsIfAlreadyExists(): void
+	{
+		$this->expectErrorMessage( 'You are attempting to set the Request QueryParameterProvider, but a QueryParameterProvider has already been configured.' );
+		$this->request->setQueryParameterProvider( new WritableArrayValueProvider( [] ) );
+	}
+
+	// getRequestParameterProvider
+	public function testGetRequestParameterProviderReturnsRequestParameterProviderIfExists(): void
+	{
+		$this->assertInstanceOf( WritableArrayValueProvider::class, $this->request->getRequestParameterProvider() );
+	}
+
+	public function testGetRequestParameterProviderThrowsIfNotExists(): void
+	{
+		$this->expectErrorMessage( 'You are attempting to access the Request RequestParameterProvider, but none has been configured.' );
+		$request = new Request( '' );
+		$request->getRequestParameterProvider();
+	}
+
+	// setRequestParameterProvider
+	public function testSetRequestParameterProviderThrowsIfAlreadyExists(): void
+	{
+		$this->expectErrorMessage( 'You are attempting to set the Request RequestParameterProvider, but a RequestParameterProvider has already been configured.' );
+		$this->request->setRequestParameterProvider( new WritableArrayValueProvider( [] ) );
+	}
+
+	// getCookieProvider
+	public function testGetCookieProviderReturnsCookieProviderIfExists(): void
+	{
+		$this->assertInstanceOf( ArrayValueProvider::class, $this->request->getCookieProvider() );
+	}
+
+	public function testGetCookieProviderThrowsIfNotExists(): void
+	{
+		$this->expectErrorMessage( 'You are attempting to access the Request CookieProvider, but none has been configured.' );
+		$request = new Request( '' );
+		$request->getCookieProvider();
+	}
+
+	// setCookieProvider
+	public function testSetCookieProviderThrowsIfAlreadyExists(): void
+	{
+		$this->expectErrorMessage( 'You are attempting to set the Request CookieProvider, but a CookieProvider has already been configured.' );
+		$this->request->setCookieProvider( new ArrayValueProvider( [] ) );
+	}
+
+	// getOriginalUrl
+	public function testGetOriginalUrlReturnsOriginalUrl(): void
+	{
+		$this->assertEquals( '/default/path', $this->request->getOriginalUrl() );
 	}
 
 	public function testGetMethodReturnsRequestMethodIfServerProviderSet(): void
@@ -48,7 +135,7 @@ class RequestTest extends TestCase
 
 	public function testGetMethodThrowsIfServerProviderNotSet(): void
 	{
-		$request = new Request();
+		$request = new Request( '' );
 		$this->expectErrorMessage( 'Typed property Crossview\Exphpress\Http\Request::$serverProvider must not be accessed before initialization' );
 		$request->getMethod();
 	}
@@ -68,7 +155,7 @@ class RequestTest extends TestCase
 
 	public function testGetServerParameterThrowsIfServerProviderNotSet(): void
 	{
-		$request = new Request();
+		$request = new Request( '' );
 		$this->expectErrorMessage( 'Typed property Crossview\Exphpress\Http\Request::$serverProvider must not be accessed before initialization' );
 		$request->getServerParameter( '' );
 	}
@@ -90,7 +177,7 @@ class RequestTest extends TestCase
 
 	public function testGetQueryParameterThrowsIfQueryParameterProviderNotSet(): void
 	{
-		$request = new Request();
+		$request = new Request( '' );
 		$this->expectErrorMessage( 'Typed property Crossview\Exphpress\Http\Request::$queryParameterProvider must not be accessed before initialization' );
 		$request->getQueryParameter( '' );
 	}
@@ -112,7 +199,7 @@ class RequestTest extends TestCase
 
 	public function testSetQueryParameterThrowsIfQueryParameterProviderNotSet(): void
 	{
-		$request = new Request();
+		$request = new Request( '' );
 		$this->expectErrorMessage( 'Typed property Crossview\Exphpress\Http\Request::$queryParameterProvider must not be accessed before initialization' );
 		$request->setQueryParameter( '', true );
 	}
@@ -134,7 +221,7 @@ class RequestTest extends TestCase
 
 	public function testGetRequestParameterThrowsIfRequestParameterProviderNotSet(): void
 	{
-		$request = new Request();
+		$request = new Request( '' );
 		$this->expectErrorMessage( 'Typed property Crossview\Exphpress\Http\Request::$requestParameterProvider must not be accessed before initialization' );
 		$request->getRequestParameter( '' );
 	}
@@ -156,7 +243,7 @@ class RequestTest extends TestCase
 
 	public function testSetRequestParameterThrowsIfQueryParameterProviderNotSet(): void
 	{
-		$request = new Request();
+		$request = new Request( '' );
 		$this->expectErrorMessage( 'Typed property Crossview\Exphpress\Http\Request::$requestParameterProvider must not be accessed before initialization' );
 		$request->setRequestParameter( '', true );
 	}
@@ -178,80 +265,8 @@ class RequestTest extends TestCase
 
 	public function testGetCookieThrowsIfCookieProviderNotSet(): void
 	{
-		$request = new Request();
+		$request = new Request( '' );
 		$this->expectErrorMessage( 'Typed property Crossview\Exphpress\Http\Request::$cookieProvider must not be accessed before initialization' );
 		$request->getCookie( '' );
-	}
-
-	public function testGetServerProviderReturnsServerProviderIfExists(): void
-	{
-		$this->assertInstanceOf( ArrayValueProvider::class, $this->request->getServerProvider() );
-	}
-
-	public function testGetServerProviderThrowsIfNotExists(): void
-	{
-		$this->expectErrorMessage( 'You are attempting to access the Request ServerProvider, but none has been configured.' );
-		$request = new Request();
-		$request->getServerProvider();
-	}
-
-	public function testSetServerProviderThrowsIfAlreadyExists(): void
-	{
-		$this->expectErrorMessage( 'You are attempting to set the Request ServerProvider, but a ServerProvider has already been configured.' );
-		$this->request->setServerProvider( new ArrayValueProvider( [] ) );
-	}
-
-	public function testGetQueryParameterProviderReturnsQueryParameterProviderIfExists(): void
-	{
-		$this->assertInstanceOf( WritableArrayValueProvider::class, $this->request->getQueryParameterProvider() );
-	}
-
-	public function testGetQueryParameterProviderThrowsIfNotExists(): void
-	{
-		$this->expectErrorMessage( 'You are attempting to access the Request QueryParameterProvider, but none has been configured.' );
-		$request = new Request();
-		$request->getQueryParameterProvider();
-	}
-
-	public function testSetQueryParameterProviderThrowsIfAlreadyExists(): void
-	{
-		$this->expectErrorMessage( 'You are attempting to set the Request QueryParameterProvider, but a QueryParameterProvider has already been configured.' );
-		$this->request->setQueryParameterProvider( new WritableArrayValueProvider( [] ) );
-	}
-
-	public function testGetRequestParameterProviderReturnsRequestParameterProviderIfExists(): void
-	{
-		$this->assertInstanceOf( WritableArrayValueProvider::class, $this->request->getRequestParameterProvider() );
-	}
-
-	public function testGetRequestParameterProviderThrowsIfNotExists(): void
-	{
-		$this->expectErrorMessage( 'You are attempting to access the Request RequestParameterProvider, but none has been configured.' );
-		$request = new Request();
-		$request->getRequestParameterProvider();
-	}
-
-	public function testSetRequestParameterProviderThrowsIfAlreadyExists(): void
-	{
-		$this->expectErrorMessage( 'You are attempting to set the Request RequestParameterProvider, but a RequestParameterProvider has already been configured.' );
-		$this->request->setRequestParameterProvider( new WritableArrayValueProvider( [] ) );
-	}
-
-	public function testGetCookieProviderReturnsCookieProviderIfExists(): void
-	{
-		$this->assertInstanceOf( ArrayValueProvider::class, $this->request->getCookieProvider() );
-	}
-
-	public function testGetCookieProviderThrowsIfNotExists(): void
-	{
-		$this->expectErrorMessage( 'You are attempting to access the Request CookieProvider, but none has been configured.' );
-		$request = new Request();
-		$request->getCookieProvider();
-	}
-
-	public function testSetCookieProviderThrowsIfAlreadyExists(): void
-	{
-		$this->expectErrorMessage( 'You are attempting to set the Request CookieProvider, but a CookieProvider has already been configured.' );
-		$this->request->setCookieProvider( new ArrayValueProvider( [] ) );
 	}
 }
