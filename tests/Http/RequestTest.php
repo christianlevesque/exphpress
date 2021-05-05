@@ -122,7 +122,7 @@ class RequestTest extends TestCase
 		$this->assertEquals( self::PATH, $this->request->getOriginalUrl() );
 	}
 
-	public function setSetOriginalUrlSetsOriginalUrl(): void
+	public function testSetOriginalUrlSetsOriginalUrl(): void
 	{
 		$newUrl = '/something/new';
 		$this->request->setOriginalUrl( $newUrl );
