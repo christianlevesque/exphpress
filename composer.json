@@ -1,6 +1,6 @@
 {
     "name": "crossview/exphpress",
-    "description": "A slim port of the Express.js library to PHP",
+    "description": "A PHP routing and middleware library loosely inspired by Express.js",
     "type": "library",
     "license": "MIT",
 	"scripts": {
