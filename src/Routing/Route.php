@@ -3,16 +3,35 @@
 namespace Crossview\Exphpress\Routing;
 
 use \Closure;
+use Crossview\Exphpress\Utilities\RouteMatcher;
 use \InvalidArgumentException;
+use Crossview\Exphpress\Utilities\CanProcessPaths;
 use Crossview\Exphpress\Http\Request;
 use Crossview\Exphpress\Http\Response;
 
 class Route
 {
+	use CanProcessPaths;
+
 	/**
-	 * @var string The URI this Route represents
+	 * @var string The URL this Route represents
 	 */
 	protected string $route;
+
+	/**
+	 * @var array Route::route parsed as an array
+	 */
+	protected array $parsedRoute;
+
+	/**
+	 * Getter for Route::$parsedRoute
+	 *
+	 * @return array
+	 */
+	public function getParsedRoute(): array
+	{
+		return $this->parsedRoute;
+	}
 
 	/**
 	 * @var array An associative array representing HTTP method => handler pairs
@@ -53,7 +72,12 @@ class Route
 	public function __construct( string $route )
 	{
 		$this->route    = $route;
-		$this->handlers = array();
+		$this->handlers = [];
+
+		// Parse the path and set up route parameters
+		$explodedRoute     = $this->processPath( $route );
+		$matcher           = new RouteMatcher;
+		$this->parsedRoute = $matcher->generateUrlDataMap( $explodedRoute );
 	}
 
 	/**

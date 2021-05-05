@@ -17,13 +17,22 @@ class RouteTest extends TestCase
 	}
 
 	// constructor
-	public function testCanBeCreated()
+	public function testCanBeCreated(): void
 	{
 		$this->assertInstanceOf( Route::class, $this->route );
 	}
 
+	// getParsedRoute
+	public function testGetParsedRouteReturnsParsedRoute(): void
+	{
+		$parsedRoute = $this->route->getParsedRoute();
+
+		$this->assertIsArray( $parsedRoute );
+		$this->assertCount( 3, $parsedRoute );
+	}
+
 	// getHandlers
-	public function testGetHandlersReturnsHandlersArray()
+	public function testGetHandlersReturnsHandlersArray(): void
 	{
 		$handlers = $this->route->getHandlers();
 		$this->assertIsArray( $handlers );
@@ -59,6 +68,7 @@ class RouteTest extends TestCase
 		} );
 		$this->assertCount( 1, $this->route->getHandlers() );
 	}
+
 	public function testAddHandlerThrowsInvalidArgumentExceptionIfInvalidHttpVerbPassed(): void
 	{
 		$this->expectErrorMessage( "'FAKE' is not a valid HTTP method." );
