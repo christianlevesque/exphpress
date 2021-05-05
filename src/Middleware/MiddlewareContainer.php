@@ -8,12 +8,12 @@ use Crossview\Exphpress\Http\Response;
 class MiddlewareContainer
 {
 	/**
-	 * @var MiddlewareInterface[] Container for middlewares
+	 * @var Middleware[] Container for middlewares
 	 */
 	protected array $middleware = [];
 
 	/**
-	 * @return MiddlewareInterface[]
+	 * @return Middleware[]
 	 */
 	public function getMiddleware(): array
 	{
@@ -39,11 +39,11 @@ class MiddlewareContainer
 	/**
 	 * Registers a middleware on the container
 	 *
-	 * @param MiddlewareInterface $m The middleware to register
+	 * @param Middleware $m The middleware to register
 	 *
 	 * @return $this
 	 */
-	public function register( MiddlewareInterface $m ): MiddlewareContainer
+	public function register( Middleware $m ): MiddlewareContainer
 	{
 		array_push( $this->middleware, $m );
 		return $this;

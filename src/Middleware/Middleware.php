@@ -6,7 +6,7 @@ use \Closure;
 use Crossview\Exphpress\Http\Request;
 use Crossview\Exphpress\Http\Response;
 
-interface MiddlewareInterface
+interface Middleware
 {
 	/**
 	 * @param Request  $request  The HTTP Request object

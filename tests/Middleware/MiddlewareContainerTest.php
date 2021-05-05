@@ -6,9 +6,7 @@ use Closure;
 use Crossview\Exphpress\Http\Request;
 use Crossview\Exphpress\Http\Response;
 use Crossview\Exphpress\Middleware\MiddlewareContainer;
-use Crossview\Exphpress\Middleware\MiddlewareInterface;
-use Crossview\Exphpress\Providers\ArrayValueProvider;
-use Crossview\Exphpress\Providers\WritableArrayValueProvider;
+use Crossview\Exphpress\Middleware\Middleware;
 use PHPUnit\Framework\TestCase;
 
 class MiddlewareContainerTest extends TestCase
@@ -81,7 +79,7 @@ class MiddlewareContainerTest extends TestCase
 	}
 }
 
-class TestImpl implements MiddlewareInterface
+class TestImpl implements Middleware
 {
 	public function handle( Request $request, Response $response, Closure $next )
 	{

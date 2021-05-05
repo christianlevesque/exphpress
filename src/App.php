@@ -3,7 +3,7 @@
 namespace Crossview\Exphpress;
 
 use Crossview\Exphpress\Middleware\MiddlewareContainer;
-use Crossview\Exphpress\Middleware\MiddlewareInterface;
+use Crossview\Exphpress\Middleware\Middleware;
 use Crossview\Exphpress\Routing\Router;
 
 class App
@@ -35,11 +35,11 @@ class App
 	/**
 	 * Registers a middleware on the application
 	 *
-	 * @param MiddlewareInterface $middleware The middleware to register
+	 * @param Middleware $middleware The middleware to register
 	 *
 	 * @return $this
 	 */
-	public function register( MiddlewareInterface $middleware ): App
+	public function register( Middleware $middleware ): App
 	{
 		$this->middleware->register( $middleware );
 
