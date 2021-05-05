@@ -9,7 +9,8 @@ use PHPUnit\Framework\TestCase;
 
 class RequestTest extends TestCase
 {
-	private const PATH = '/default/path?arg1=hello+world&arg2=27&arg3=true';
+	private const ORIGINAL_URL = '/default/path?arg1=hello+world&arg2=27&arg3=true';
+	private const PATH         = '/default/path';
 	private Request                    $request;
 	private ArrayValueProvider         $serverProvider;
 	private ArrayValueProvider         $cookieProvider;
@@ -27,7 +28,8 @@ class RequestTest extends TestCase
 					  ->setCookieProvider( $this->cookieProvider )
 					  ->setQueryParameterProvider( $this->queryParameterProvider )
 					  ->setRequestParameterProvider( $this->requestParameterProvider )
-					  ->setOriginalUrl( self::PATH );
+					  ->setOriginalUrl( self::ORIGINAL_URL )
+					  ->setPath( self::PATH );
 	}
 
 	// constructor
@@ -119,7 +121,7 @@ class RequestTest extends TestCase
 	// originalUrl getter/setter
 	public function testGetOriginalUrlReturnsOriginalUrl(): void
 	{
-		$this->assertEquals( self::PATH, $this->request->getOriginalUrl() );
+		$this->assertEquals( self::ORIGINAL_URL, $this->request->getOriginalUrl() );
 	}
 
 	public function testSetOriginalUrlSetsOriginalUrl(): void
@@ -132,6 +134,24 @@ class RequestTest extends TestCase
 	public function testSetOriginalUrlReturnsRequest(): void
 	{
 		$this->assertInstanceOf( Request::class, $this->request->setOriginalUrl( '' ) );
+	}
+
+	// path getter/setter
+	public function testGetPathReturnsPath(): void
+	{
+		$this->assertEquals( self::PATH, $this->request->getPath() );
+	}
+
+	public function testSetPathSetsPath(): void
+	{
+		$newPath = '/something/new';
+		$this->request->setPath( $newPath );
+		$this->assertEquals( $newPath, $this->request->getPath() );
+	}
+
+	public function testSetPathReturnsRequest(): void
+	{
+		$this->assertInstanceOf( Request::class, $this->request->setPath( '' ) );
 	}
 
 	// getMethod

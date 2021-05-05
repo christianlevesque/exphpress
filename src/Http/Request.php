@@ -193,7 +193,34 @@ class Request
 	public function setOriginalUrl( string $newUrl ): Request
 	{
 		$this->originalUrl = $newUrl;
+		return $this;
+	}
 
+	/**
+	 * @var string The portion of the root-relative URL excluding the query string
+	 */
+	protected string $path;
+
+	/**
+	 * Getter for Request::path
+	 *
+	 * @return string
+	 */
+	public function getPath(): string
+	{
+		return $this->path;
+	}
+
+	/**
+	 * Setter for Request::path
+	 *
+	 * @param string $newPath
+	 *
+	 * @return $this
+	 */
+	public function setPath( string $newPath ): Request
+	{
+		$this->path = $newPath;
 		return $this;
 	}
 
