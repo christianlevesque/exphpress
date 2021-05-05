@@ -197,6 +197,16 @@ class Request
 	}
 
 	/**
+	 * @var array The Request::path, split into an array of its portions
+	 */
+	protected array $parsedPath;
+
+	public function getParsedPath(): array
+	{
+		return $this->parsedPath;
+	}
+
+	/**
 	 * @var string The portion of the root-relative URL excluding the query string
 	 */
 	protected string $path;
@@ -212,7 +222,7 @@ class Request
 	}
 
 	/**
-	 * Setter for Request::path
+	 * Setter for Request::path and Request::parsedPath
 	 *
 	 * @param string $newPath
 	 *
@@ -220,7 +230,12 @@ class Request
 	 */
 	public function setPath( string $newPath ): Request
 	{
-		$this->path = $newPath;
+		$this->path       = $newPath;
+		$this->parsedPath = preg_split( '/\//', $newPath );
+
+		// The first element will be an empty string, what came before the leading slash
+		array_shift( $this->parsedPath );
+
 		return $this;
 	}
 

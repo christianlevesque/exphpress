@@ -136,6 +136,15 @@ class RequestTest extends TestCase
 		$this->assertInstanceOf( Request::class, $this->request->setOriginalUrl( '' ) );
 	}
 
+	// parsedPath getter
+	public function testGetParsedPathReturnsParsedPath(): void
+	{
+		$parsed = $this->request->getParsedPath();
+		$this->assertCount( 2, $parsed );
+		$this->assertEquals( 'default', $parsed[ 0 ] );
+		$this->assertEquals( 'path', $parsed[ 1 ] );
+	}
+
 	// path getter/setter
 	public function testGetPathReturnsPath(): void
 	{
@@ -147,6 +156,17 @@ class RequestTest extends TestCase
 		$newPath = '/something/new';
 		$this->request->setPath( $newPath );
 		$this->assertEquals( $newPath, $this->request->getPath() );
+	}
+
+	public function testSetPathSetsParsedPath(): void
+	{
+		$newPath = '/something/new';
+		$this->request->setPath( $newPath );
+		$parsed = $this->request->getParsedPath();
+
+		$this->assertCount( 2, $parsed );
+		$this->assertEquals( 'something', $parsed[ 0 ] );
+		$this->assertEquals( 'new', $parsed[ 1 ] );
 	}
 
 	public function testSetPathReturnsRequest(): void
