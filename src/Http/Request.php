@@ -2,6 +2,7 @@
 
 namespace Crossview\Exphpress\Http;
 
+use Crossview\Exphpress\Exceptions\ExphpressException;
 use Crossview\Exphpress\Providers\ReadableProvider;
 use Crossview\Exphpress\Providers\ReadableWritableProvider;
 
@@ -136,12 +137,12 @@ class Request
 	 */
 	public function getServerProvider(): ?ReadableProvider
 	{
-		if ( isset( $this->serverProvider ) )
+		if ( !isset( $this->serverProvider ) )
 		{
-			return $this->serverProvider;
+			throw new ExphpressException( 'You are attempting to access the Request ServerProvider, but none has been configured.' );
 		}
 
-		return null;
+		return $this->serverProvider;
 	}
 
 	/**
@@ -155,11 +156,12 @@ class Request
 	 */
 	public function setServerProvider( ReadableProvider $provider ): Request
 	{
-		if ( !isset( $this->serverProvider ) )
+		if ( isset( $this->serverProvider ) )
 		{
-			$this->serverProvider = $provider;
+			throw new ExphpressException( 'You are attempting to set the Request ServerProvider, but a ServerProvider has already been configured.' );
 		}
 
+		$this->serverProvider = $provider;
 		return $this;
 	}
 
@@ -170,12 +172,12 @@ class Request
 	 */
 	public function getQueryParameterProvider(): ?ReadableWritableProvider
 	{
-		if ( isset( $this->queryParameterProvider ) )
+		if ( !isset( $this->queryParameterProvider ) )
 		{
-			return $this->queryParameterProvider;
+			throw new ExphpressException( 'You are attempting to access the Request QueryParameterProvider, but none has been configured.' );
 		}
 
-		return null;
+		return $this->queryParameterProvider;
 	}
 
 	/**
@@ -189,11 +191,12 @@ class Request
 	 */
 	public function setQueryParameterProvider( ReadableWritableProvider $provider ): Request
 	{
-		if ( !isset( $this->queryParameterProvider ) )
+		if ( isset( $this->queryParameterProvider ) )
 		{
-			$this->queryParameterProvider = $provider;
+			throw new ExphpressException( 'You are attempting to set the Request QueryParameterProvider, but a QueryParameterProvider has already been configured.' );
 		}
 
+		$this->queryParameterProvider = $provider;
 		return $this;
 	}
 
@@ -204,12 +207,12 @@ class Request
 	 */
 	public function getRequestParameterProvider(): ?ReadableWritableProvider
 	{
-		if ( isset( $this->requestParameterProvider ) )
+		if ( !isset( $this->requestParameterProvider ) )
 		{
-			return $this->requestParameterProvider;
+			throw new ExphpressException( 'You are attempting to access the Request RequestParameterProvider, but none has been configured.' );
 		}
 
-		return null;
+		return $this->requestParameterProvider;
 	}
 
 	/**
@@ -223,11 +226,12 @@ class Request
 	 */
 	public function setRequestParameterProvider( ReadableWritableProvider $provider ): Request
 	{
-		if ( !isset( $this->requestParameterProvider ) )
+		if ( isset( $this->requestParameterProvider ) )
 		{
-			$this->requestParameterProvider = $provider;
+			throw new ExphpressException( 'You are attempting to set the Request RequestParameterProvider, but a RequestParameterProvider has already been configured.' );
 		}
 
+		$this->requestParameterProvider = $provider;
 		return $this;
 	}
 
@@ -238,12 +242,12 @@ class Request
 	 */
 	public function getCookieProvider(): ?ReadableProvider
 	{
-		if ( isset( $this->cookieProvider ) )
+		if ( !isset( $this->cookieProvider ) )
 		{
-			return $this->cookieProvider;
+			throw new ExphpressException( 'You are attempting to access the Request CookieProvider, but none has been configured.' );
 		}
 
-		return null;
+		return $this->cookieProvider;
 	}
 
 	/**
@@ -257,11 +261,12 @@ class Request
 	 */
 	public function setCookieProvider( ReadableProvider $provider ): Request
 	{
-		if ( !isset( $this->cookieProvider ) )
+		if ( isset( $this->cookieProvider ) )
 		{
-			$this->cookieProvider = $provider;
+			throw new ExphpressException( 'You are attempting to set the Request CookieProvider, but a CookieProvider has already been configured.' );
 		}
 
+		$this->cookieProvider = $provider;
 		return $this;
 	}
 }
