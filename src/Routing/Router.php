@@ -2,9 +2,6 @@
 
 namespace Crossview\Exphpress\Routing;
 
-use Crossview\Exphpress\Http\Request;
-use Crossview\Exphpress\Http\Response;
-
 class Router
 {
 	protected static ?Router $instance;
