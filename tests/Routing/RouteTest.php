@@ -16,11 +16,13 @@ class RouteTest extends TestCase
 		$this->route = new Route( '/user/:id/email' );
 	}
 
+	// constructor
 	public function testCanBeCreated()
 	{
 		$this->assertInstanceOf( Route::class, $this->route );
 	}
 
+	// getHandlers
 	public function testGetHandlersReturnsHandlersArray()
 	{
 		$handlers = $this->route->getHandlers();
@@ -28,20 +30,13 @@ class RouteTest extends TestCase
 		$this->assertCount( 0, $handlers );
 	}
 
+	// __toString
 	public function testToStringReturnsRouteString(): void
 	{
 		$this->assertEquals( '/user/:id/email', (string) $this->route );
 	}
 
-	public function testAddHandlerAddsHandler(): void
-	{
-		$this->assertCount( 0, $this->route->getHandlers() );
-		$this->route->addHandler( 'POST', function ()
-		{
-		} );
-		$this->assertCount( 1, $this->route->getHandlers() );
-	}
-
+	// getHandler
 	public function testGetHandlerReturnsHandlerIfExists(): void
 	{
 		$this->route->addHandler( 'POST', function ()
@@ -55,6 +50,15 @@ class RouteTest extends TestCase
 		$this->assertNull( $this->route->getHandler( 'POST' ) );
 	}
 
+	// addHandler and wrappers
+	public function testAddHandlerAddsHandler(): void
+	{
+		$this->assertCount( 0, $this->route->getHandlers() );
+		$this->route->addHandler( 'POST', function ()
+		{
+		} );
+		$this->assertCount( 1, $this->route->getHandlers() );
+	}
 	public function testAddHandlerThrowsInvalidArgumentExceptionIfInvalidHttpVerbPassed(): void
 	{
 		$this->expectErrorMessage( "'FAKE' is not a valid HTTP method." );
@@ -151,6 +155,7 @@ class RouteTest extends TestCase
 		$this->assertCount( 1, $this->route->getHandlers() );
 	}
 
+	// execute
 	public function testExecuteExecutesHandlerIfExists(): void
 	{
 		$response = $this->getMockBuilder( Response::class )
