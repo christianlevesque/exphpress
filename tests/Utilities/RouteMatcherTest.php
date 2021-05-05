@@ -2,16 +2,16 @@
 
 namespace Utilities;
 
-use Crossview\Exphpress\Utilities\RouteMatching;
+use Crossview\Exphpress\Utilities\RouteMatcher;
 use PHPUnit\Framework\TestCase;
 
-class RouteMatchingTest extends TestCase
+class RouteMatcherTest extends TestCase
 {
-	private RouteMatching $matcher;
+	private RouteMatcher $matcher;
 
 	protected function setUp(): void
 	{
-		$this->matcher = new RouteMatching;
+		$this->matcher = new RouteMatcher;
 	}
 
 	// validateUrlParameterTypes
