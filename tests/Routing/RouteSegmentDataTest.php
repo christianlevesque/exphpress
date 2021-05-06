@@ -36,4 +36,29 @@ class RouteSegmentDataTest extends TestCase
 		$this->assertCount( 1, $this->data->getTypes() );
 		$this->assertEquals( 'int', $this->data->getTypes()[ 0 ] );
 	}
+
+	public function testTypeGetterSetter(): void
+	{
+		$this->assertEmpty( $this->data->getType() );
+		$this->data->setType( 'bool' );
+		$this->assertEquals( 'bool', $this->data->getType() );
+	}
+
+	public function testValueGetterSetter(): void
+	{
+		$this->data->setValue( 1 );
+		$value = $this->data->getValue();
+		$this->assertIsNumeric( $value );
+		$this->assertEquals( 1, $value );
+
+		$this->data->setValue( true );
+		$value = $this->data->getValue();
+		$this->assertIsBool( $value );
+		$this->assertTrue( $value );
+
+		$this->data->setValue( 'hello' );
+		$value = $this->data->getValue();
+		$this->assertIsString( $value );
+		$this->assertEquals( 'hello', $value );
+	}
 }
