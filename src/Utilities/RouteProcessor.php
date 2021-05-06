@@ -44,21 +44,22 @@ class RouteProcessor
 
 		for ( $i = 0; $i < $routeLength; $i++ )
 		{
-			$current = $parsedRoute[ $i ];
+			$currentRoute = $parsedRoute[ $i ];
+			$currentUrl   = $parsedUrl[ $i ];
+
 			// If the current Route segment is an asterisk (*) then it automatically matches the rest of the URL
-			if ( $current->getPath() === "*" )
+			if ( $currentRoute->getPath() === "*" )
 			{
 				return true;
 			}
 
-			if ( $current->isParam() )
+			if ( $currentRoute->isParam() && $this->processDataTypes( $currentRoute, $currentUrl ) )
 			{
-				// TODO: match the parameters instead of just assuming they might match
 				continue;
 			}
 
 			// if all other tests have not returned or continued, and the current portions don't match, the route and uri don't match
-			if ( $current->getPath() !== $parsedUrl[ $i ] )
+			if ( $currentRoute->getPath() !== $currentUrl )
 			{
 				return false;
 			}
@@ -69,27 +70,22 @@ class RouteProcessor
 
 	public function processDataTypes( RouteSegmentData $data, string $urlParam ): bool
 	{
-		$types = $data->getTypes();
+		return $this->processBool( $data, $urlParam )
+			|| $this->processNumber( $data, $urlParam )
+			|| $this->processString( $data, $urlParam )
+			|| $this->processAny( $data, $urlParam );
+	}
 
-		if ( count( $types ) === 1 && $types[ 0 ] === 'any' )
+	public function processAny( RouteSegmentData $data, string $value ): bool
+	{
+		if ( array_search( 'any', $data->getTypes() ) === false )
 		{
-			$data->setType( 'any' );
-			$data->setValue( $urlParam );
-			return true;
+			return false;
 		}
 
-		if ( $this->processBool( $data, $urlParam ) )
-		{
-			return true;
-		} else if ( $this->processNumber( $data, $urlParam ) )
-		{
-			return true;
-		} else if ( $this->processString( $data, $urlParam ) )
-		{
-			return true;
-		}
-
-		return false;
+		$data->setType( 'any' );
+		$data->setValue( $value );
+		return true;
 	}
 
 	public function processBool( RouteSegmentData $data, string $value ): bool
