@@ -80,4 +80,51 @@ class RouteSegmentData
 	{
 		$this->types = $types;
 	}
+
+	protected string $type = '';
+
+	/**
+	 * $type getter
+	 *
+	 * @return string
+	 */
+	public function getType(): string
+	{
+		return $this->type;
+	}
+
+	/**
+	 * $type setter
+	 *
+	 * @param string $type
+	 */
+	public function setType( string $type ): void
+	{
+		$this->type = $type;
+	}
+
+	/**
+	 * @var mixed
+	 */
+	protected $value;
+
+	/**
+	 * $value getter
+	 *
+	 * @return mixed
+	 */
+	public function getValue()
+	{
+		return $this->value;
+	}
+
+	/**
+	 * $value setter
+	 *
+	 * @param mixed $value
+	 */
+	public function setValue( $value ): void
+	{
+		$this->value = $value;
+	}
 }
