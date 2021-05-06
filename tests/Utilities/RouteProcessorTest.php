@@ -77,6 +77,70 @@ class RouteProcessorTest extends TestCase
 		$this->assertTrue( $this->matcher->routeMatches( $route, $request ) );
 	}
 
+	public function testRouteMatchesReturnsFalseIfFinalSegmentNotMatches(): void
+	{
+		$route   = new Route( '/user/home' );
+		$request = new Request();
+		$request->setPath( '/user/not-home' );
+		$this->assertFalse( $this->matcher->routeMatches( $route, $request ) );
+	}
+
+	// processDataTypes
+	public function testProcessDataTypesReturnsTrueIfTypeIsAny(): void
+	{
+		$data = new RouteSegmentData();
+		$data->setTypes( [ 'any' ] );
+		$this->assertTrue( $this->matcher->processDataTypes( $data, 'something' ) );
+		$this->assertEquals( 'any', $data->getType() );
+		$this->assertEquals( 'something', $data->getValue() );
+	}
+
+	public function testProcessDataTypesReturnsTrueIfTypeIsBool(): void
+	{
+		$data = new RouteSegmentData();
+		$data->setTypes( [ 'bool' ] );
+		$this->assertTrue( $this->matcher->processDataTypes( $data, 'true' ) );
+	}
+
+	public function testProcessDataTypesReturnsTrueIfTypeIsNumber(): void
+	{
+		$data = new RouteSegmentData();
+		$data->setTypes( [ 'number' ] );
+		$this->assertTrue( $this->matcher->processDataTypes( $data, '2187' ) );
+	}
+
+	public function testProcessDataTypesReturnsTrueIfTypeIsString(): void
+	{
+		$data = new RouteSegmentData();
+		$data->setTypes( [ 'string' ] );
+		$this->assertTrue( $this->matcher->processDataTypes( $data, 'something' ) );
+	}
+
+	public function testProcessDataTypesReturnsFalseIfTypeNotMatches(): void
+	{
+		$data = new RouteSegmentData();
+		$data->setTypes( [ 'bool' ] );
+		$this->assertFalse( $this->matcher->processDataTypes( $data, 'not a bool' ) );
+	}
+
+	// processAny
+	public function testProcessAnyReturnsFalseIfTypesNotContainsAny(): void
+	{
+		$data = new RouteSegmentData();
+		$data->setTypes( [ 'bool' ] );
+		$this->assertFalse( $this->matcher->processAny( $data, 'true' ) );
+	}
+
+	public function testProcessAnyReturnsTrueIfTypeIsAny(): void
+	{
+		$data = new RouteSegmentData();
+		$data->setTypes( [ 'any' ] );
+		$this->assertTrue( $this->matcher->processAny( $data, 5477 ) );
+		$this->assertEquals( 'any', $data->getType() );
+		$this->assertIsNumeric( $data->getValue() );
+		$this->assertEquals( 5477, $data->getValue() );
+	}
+
 	// processBool
 	public function testProcessBoolReturnsFalseIfTypesNotContainsBool(): void
 	{
