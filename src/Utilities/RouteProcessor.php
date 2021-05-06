@@ -11,24 +11,17 @@ class RouteProcessor
 {
 	protected array $acceptableDataTypes = [
 		'bool',
-		'float',
-		'double',
-		'int'
+		'number',
+		'string'
 	];
 
 	/**
 	 * Determines if a Request matches a Route
 	 *
-	 * .
-	 *
-	 * If The current portion of the $route is a parameter, and the corresponding portion of the $uri is a non-empty value, it may be a match.
-	 *
-	 * If all other 1:1 tests have not returned or continued, and the current portions don't match, then the $route and $uri don't match.
-	 *
 	 * @param Route   $route   The Route to test
 	 * @param Request $request The Request to test against
 	 *
-	 * @return array|bool Returns an array containing any parameters matched by the URI. If no parameters were matched but the URI and Route match, the array will be empty. If the URI and Route don't match, returns false.
+	 * @return bool
 	 */
 	public function routeMatches( Route $route, Request $request ): bool
 	{
@@ -71,6 +64,121 @@ class RouteProcessor
 			}
 		}
 
+		return true;
+	}
+
+	public function processDataTypes( RouteSegmentData $data, string $urlParam ): bool
+	{
+		$types = $data->getTypes();
+
+		if ( count( $types ) === 1 && $types[ 0 ] === 'any' )
+		{
+			$data->setType( 'any' );
+			$data->setValue( $urlParam );
+			return true;
+		}
+
+		if ( $this->processBool( $data, $urlParam ) )
+		{
+			return true;
+		} else if ( $this->processNumber( $data, $urlParam ) )
+		{
+			return true;
+		} else if ( $this->processString( $data, $urlParam ) )
+		{
+			return true;
+		}
+
+		return false;
+	}
+
+	public function processBool( RouteSegmentData $data, string $value ): bool
+	{
+		if ( array_search( 'bool', $data->getTypes() ) === false )
+		{
+			return false;
+		}
+
+		$truthy = [
+			'true',
+			'1',
+			'yes'
+		];
+		$falsy  = [
+			'false',
+			'0',
+			'no'
+		];
+
+		if ( array_search( $value, $truthy ) !== false )
+		{
+			$data->setType( 'bool' );
+			$data->setValue( true );
+			return true;
+		} else if ( array_search( $value, $falsy ) !== false )
+		{
+			$data->setType( 'bool' );
+			$data->setValue( false );
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Determines whether a value matches the number rules for RouteSegmentData
+	 *
+	 * A value is considered a number if it can be cast to int or float.
+	 *
+	 * @param RouteSegmentData $data  The route data to process
+	 * @param string           $value The value to process as a number
+	 *
+	 * @return bool
+	 */
+	public function processNumber( RouteSegmentData $data, string $value ): bool
+	{
+		if ( array_search( 'number', $data->getTypes() ) === false )
+		{
+			return false;
+		}
+
+		if ( $value === '0' )
+		{
+			$data->setType( 'number' );
+			$data->setValue( 0 );
+			return true;
+		}
+
+		$parsed = floatval( $value );
+		if ( $parsed > 0 )
+		{
+			$data->setType( 'number' );
+			$data->setValue( $parsed );
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Determines whether a value matched the string rules for RouteSegmentData
+	 *
+	 * A value is always considered a string, so this method merely checks for the presence of the string type, applies the correct mutations to $data and returns true. processString will only return false if RouteSegmentData doesn't include the 'string' type.
+	 *
+	 * @param RouteSegmentData $data  The route data to process
+	 * @param string           $value The value to process as a string
+	 *
+	 * @return bool
+	 */
+	public function processString( RouteSegmentData $data, string $value ): bool
+	{
+		if ( array_search( 'string', $data->getTypes() ) === false )
+		{
+			return false;
+		}
+
+		$data->setType( 'string' );
+		$data->setValue( $value );
 		return true;
 	}
 

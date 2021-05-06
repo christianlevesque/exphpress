@@ -4,6 +4,7 @@ namespace Utilities;
 
 use Crossview\Exphpress\Http\Request;
 use Crossview\Exphpress\Routing\Route;
+use Crossview\Exphpress\Routing\RouteSegmentData;
 use Crossview\Exphpress\Utilities\RouteProcessor;
 use PHPUnit\Framework\TestCase;
 
@@ -76,6 +77,142 @@ class RouteProcessorTest extends TestCase
 		$this->assertTrue( $this->matcher->routeMatches( $route, $request ) );
 	}
 
+	// processBool
+	public function testProcessBoolReturnsFalseIfTypesNotContainsBool(): void
+	{
+		$data = new RouteSegmentData();
+		$data->setTypes( [
+			'number',
+			'string'
+		] );
+		$this->assertFalse( $this->matcher->processBool( $data, '' ) );
+	}
+
+	public function testProcessBoolCorrectlyHandlesTrueString(): void
+	{
+		$data = new RouteSegmentData();
+		$data->setTypes( [ 'bool' ] );
+		$this->assertTrue( $this->matcher->processBool( $data, 'true' ) );
+		$this->assertTrue( $data->getValue() );
+		$this->assertEquals( 'bool', $data->getType() );
+	}
+
+	public function testProcessBoolCorrectlyHandlesOneString(): void
+	{
+		$data = new RouteSegmentData();
+		$data->setTypes( [ 'bool' ] );
+		$this->assertTrue( $this->matcher->processBool( $data, '1' ) );
+		$this->assertTrue( $data->getValue() );
+		$this->assertEquals( 'bool', $data->getType() );
+	}
+
+	public function testProcessBoolCorrectlyHandlesYesString(): void
+	{
+		$data = new RouteSegmentData();
+		$data->setTypes( [ 'bool' ] );
+		$this->assertTrue( $this->matcher->processBool( $data, 'yes' ) );
+		$this->assertTrue( $data->getValue() );
+		$this->assertEquals( 'bool', $data->getType() );
+	}
+
+	public function testProcessBoolCorrectlyHandlesFalseString(): void
+	{
+		$data = new RouteSegmentData();
+		$data->setTypes( [ 'bool' ] );
+		$this->assertTrue( $this->matcher->processBool( $data, 'false' ) );
+		$this->assertFalse( $data->getValue() );
+		$this->assertEquals( 'bool', $data->getType() );
+	}
+
+	public function testProcessBoolCorrectlyHandlesZeroString(): void
+	{
+		$data = new RouteSegmentData();
+		$data->setTypes( [ 'bool' ] );
+		$this->assertTrue( $this->matcher->processBool( $data, '0' ) );
+		$this->assertFalse( $data->getValue() );
+		$this->assertEquals( 'bool', $data->getType() );
+	}
+
+	public function testProcessBoolCorrectlyHandlesNoString(): void
+	{
+		$data = new RouteSegmentData();
+		$data->setTypes( [ 'bool' ] );
+		$this->assertTrue( $this->matcher->processBool( $data, 'no' ) );
+		$this->assertFalse( $data->getValue() );
+		$this->assertEquals( 'bool', $data->getType() );
+	}
+
+	public function testProcessBoolReturnsFalseIfValueInvalid(): void
+	{
+		$data = new RouteSegmentData();
+		$data->setTypes( [ 'bool' ] );
+		$this->assertFalse( $this->matcher->processBool( $data, 'not falsy' ) );
+	}
+
+	// processNumber
+	public function testProcessNumberReturnsFalseIfTypesNotContainsNumber(): void
+	{
+		$data = new RouteSegmentData();
+		$data->setTypes( [ 'bool' ] );
+		$this->assertFalse( $this->matcher->processNumber( $data, '1' ) );
+	}
+
+	public function testProcessNumberCorrectlyHandlesZero(): void
+	{
+		$data = new RouteSegmentData();
+		$data->setTypes( [ 'number' ] );
+		$this->assertTrue( $this->matcher->processNumber( $data, '0' ) );
+		$this->assertEquals( 'number', $data->getType() );
+		$this->assertIsNumeric( $data->getValue() );
+		$this->assertEquals( 0, $data->getValue() );
+	}
+
+	public function testProcessNumberReturnsTrueIfValueNumeric(): void
+	{
+		$data = new RouteSegmentData();
+		$data->setTypes( [ 'number' ] );
+		$this->assertTrue( $this->matcher->processNumber( $data, '1138' ) );
+		$this->assertEquals( 'number', $data->getType() );
+		$this->assertIsNumeric( $data->getValue() );
+		$this->assertEquals( 1138, $data->getValue() );
+
+		$this->assertTrue( $this->matcher->processNumber( $data, '1.75' ) );
+		$this->assertIsNumeric( $data->getValue() );
+		$this->assertEquals( 1.75, $data->getValue() );
+
+		$this->assertTrue( $this->matcher->processNumber( $data, '2e7' ) );
+		$this->assertIsNumeric( $data->getValue() );
+		$this->assertEquals( 2e7, $data->getValue() );
+	}
+
+	public function testProcessNumberReturnsFalseIfValueNotNumeric(): void
+	{
+		$data = new RouteSegmentData();
+		$data->setTypes( [ 'number' ] );
+		$this->assertFalse( $this->matcher->processNumber( $data, 'f1138' ) );
+		$this->assertFalse( $this->matcher->processNumber( $data, '0b1111' ) );
+		$this->assertFalse( $this->matcher->processNumber( $data, '0x5' ) );
+		$this->assertFalse( $this->matcher->processNumber( $data, 'true' ) );
+		$this->assertFalse( $this->matcher->processNumber( $data, 'false' ) );
+	}
+
+	// processString
+	public function testProcessStringReturnsFalseIfTypesNotContainsString(): void
+	{
+		$data = new RouteSegmentData();
+		$data->setTypes( [ 'number' ] );
+		$this->assertFalse( $this->matcher->processString( $data, 'string' ) );
+	}
+
+	public function testProcessStringReturnsTrueIfTypesContainsString(): void
+	{
+		$data = new RouteSegmentData();
+		$data->setTypes( [ 'string' ] );
+		$this->assertTrue( $this->matcher->processString( $data, 'a string' ) );
+		$this->assertEquals( 'string', $data->getType() );
+		$this->assertEquals( 'a string', $data->getValue() );
+	}
+
 	// generateUrlDataMap
 	public function testGenerateUrlDataMapDoesNothingIfUrlEmpty(): void
 	{
@@ -97,14 +234,14 @@ class RouteProcessorTest extends TestCase
 
 	public function testGenerateUrlDataMapCorrectlyHandlesParametersWithTypes(): void
 	{
-		$parsedRoute = $this->matcher->generateUrlDataMap( [ ':some_value<int|bool>' ] );
+		$parsedRoute = $this->matcher->generateUrlDataMap( [ ':some_value<number|bool>' ] );
 		$segment     = $parsedRoute[ 0 ];
 
 		$this->assertTrue( $segment->isParam() );
 		$this->assertEquals( 'some_value', $segment->getPath() );
 		$this->assertIsArray( $segment->getTypes() );
 		$this->assertCount( 2, $segment->getTypes() );
-		$this->assertEquals( 'int', $segment->getTypes()[ 0 ] );
+		$this->assertEquals( 'number', $segment->getTypes()[ 0 ] );
 		$this->assertEquals( 'bool', $segment->getTypes()[ 1 ] );
 	}
 
@@ -121,21 +258,19 @@ class RouteProcessorTest extends TestCase
 	public function testValidateUrlParameterTypesReturnsTypesIfValid(): void
 	{
 		$types = $this->matcher->validateUrlParameterTypes( [
-			'int',
-			'float',
-			'double',
+			'number',
+			'string',
 			'bool'
 		] );
-		$this->assertCount( 4, $types );
-		$this->assertEquals( 'int', $types[ 0 ] );
-		$this->assertEquals( 'float', $types[ 1 ] );
-		$this->assertEquals( 'double', $types[ 2 ] );
-		$this->assertEquals( 'bool', $types[ 3 ] );
+		$this->assertCount( 3, $types );
+		$this->assertEquals( 'number', $types[ 0 ] );
+		$this->assertEquals( 'string', $types[ 1 ] );
+		$this->assertEquals( 'bool', $types[ 2 ] );
 	}
 
 	public function testValidateUrlParameterTypesThrowsIfTypeInvalid(): void
 	{
-		$this->expectErrorMessage( 'string is not a valid parameter data type. Valid types are bool, float, double, int' );
+		$this->expectErrorMessage( 'int is not a valid parameter data type. Valid types are bool, number, string' );
 		$this->matcher->validateUrlParameterTypes( [
 			'int',
 			'string'
@@ -145,8 +280,8 @@ class RouteProcessorTest extends TestCase
 	// parseUrlParameterTypes
 	public function testParseUrlParameterTypesReturnsArrayOfTypesIfValid(): void
 	{
-		$types = $this->matcher->parseUrlParameterTypes( ':matched_route<int|float|double|bool>' );
-		$this->assertCount( 4, $types );
+		$types = $this->matcher->parseUrlParameterTypes( ':matched_route<number|string|bool>' );
+		$this->assertCount( 3, $types );
 	}
 
 	public function testParseUrlParameterTypesReturnsAnyIfNoMatchFound(): void
