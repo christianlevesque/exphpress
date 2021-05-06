@@ -2,6 +2,8 @@
 
 namespace Utilities;
 
+use Crossview\Exphpress\Http\Request;
+use Crossview\Exphpress\Routing\Route;
 use Crossview\Exphpress\Utilities\RouteProcessor;
 use PHPUnit\Framework\TestCase;
 
@@ -12,6 +14,66 @@ class RouteProcessorTest extends TestCase
 	protected function setUp(): void
 	{
 		$this->matcher = new RouteProcessor;
+	}
+
+	// routeMatches
+	public function testRouteMatchesReturnsFalseIfUrlLengthTooShort(): void
+	{
+		$route   = new Route( '/no/place/like/home' );
+		$request = new Request();
+		$request->setPath( '/home' );
+
+		$this->assertFalse( $this->matcher->routeMatches( $route, $request ) );
+	}
+
+	public function testRouteMatchesReturnsFalseIfUrlLengthTooLong(): void
+	{
+		$route   = new Route( '/home' );
+		$request = new Request();
+		$request->setPath( '/no/place/like/home' );
+
+		$this->assertFalse( $this->matcher->routeMatches( $route, $request ) );
+	}
+
+	public function testRouteMatchesReturnsTrueIfSimpleRouteMatches(): void
+	{
+		$path    = '/home';
+		$route   = new Route( $path );
+		$request = new Request();
+		$request->setPath( $path );
+		$this->assertTrue( $this->matcher->routeMatches( $route, $request ) );
+
+		$path    = '/';
+		$route   = new Route( $path );
+		$request = new Request();
+		$request->setPath( $path );
+		$this->assertTrue( $this->matcher->routeMatches( $route, $request ) );
+	}
+
+	public function testRouteMatchesReturnsTrueIfRouteParamMatches(): void
+	{
+		$route   = new Route( '/user/:id' );
+		$request = new Request();
+		$request->setPath( '/user/27' );
+		$this->assertTrue( $this->matcher->routeMatches( $route, $request ) );
+
+		$route   = new Route( '/user/:id/settings' );
+		$request = new Request();
+		$request->setPath( '/user/27/settings' );
+		$this->assertTrue( $this->matcher->routeMatches( $route, $request ) );
+	}
+
+	public function testRouteMatchesReturnsTrueIfRouteContainsAsterisk(): void
+	{
+		$route   = new Route( '/user/*' );
+		$request = new Request();
+		$request->setPath( '/user/27' );
+		$this->assertTrue( $this->matcher->routeMatches( $route, $request ) );
+
+		$route   = new Route( '/user/*' );
+		$request = new Request();
+		$request->setPath( '/user/still/matches' );
+		$this->assertTrue( $this->matcher->routeMatches( $route, $request ) );
 	}
 
 	// generateUrlDataMap
@@ -26,14 +88,11 @@ class RouteProcessorTest extends TestCase
 		$parsedRoute = $this->matcher->generateUrlDataMap( [ ':some_value' ] );
 		$segment     = $parsedRoute[ 0 ];
 
-		$this->assertArrayHasKey( 'param', $segment );
-		$this->assertArrayHasKey( 'path', $segment );
-		$this->assertArrayHasKey( 'type', $segment );
-		$this->assertTrue( $segment[ 'param' ] );
-		$this->assertEquals( 'some_value', $segment[ 'path' ] );
-		$this->assertIsArray( $segment[ 'type' ] );
-		$this->assertCount( 1, $segment[ 'type' ] );
-		$this->assertEquals( 'any', $segment[ 'type' ][ 0 ] );
+		$this->assertTrue( $segment->isParam() );
+		$this->assertEquals( 'some_value', $segment->getPath() );
+		$this->assertIsArray( $segment->getTypes() );
+		$this->assertCount( 1, $segment->getTypes() );
+		$this->assertEquals( 'any', $segment->getTypes()[ 0 ] );
 	}
 
 	public function testGenerateUrlDataMapCorrectlyHandlesParametersWithTypes(): void
@@ -41,15 +100,12 @@ class RouteProcessorTest extends TestCase
 		$parsedRoute = $this->matcher->generateUrlDataMap( [ ':some_value<int|bool>' ] );
 		$segment     = $parsedRoute[ 0 ];
 
-		$this->assertArrayHasKey( 'param', $segment );
-		$this->assertArrayHasKey( 'path', $segment );
-		$this->assertArrayHasKey( 'type', $segment );
-		$this->assertTrue( $segment[ 'param' ] );
-		$this->assertEquals( 'some_value', $segment[ 'path' ] );
-		$this->assertIsArray( $segment[ 'type' ] );
-		$this->assertCount( 2, $segment[ 'type' ] );
-		$this->assertEquals( 'int', $segment[ 'type' ][ 0 ] );
-		$this->assertEquals( 'bool', $segment[ 'type' ][ 1 ] );
+		$this->assertTrue( $segment->isParam() );
+		$this->assertEquals( 'some_value', $segment->getPath() );
+		$this->assertIsArray( $segment->getTypes() );
+		$this->assertCount( 2, $segment->getTypes() );
+		$this->assertEquals( 'int', $segment->getTypes()[ 0 ] );
+		$this->assertEquals( 'bool', $segment->getTypes()[ 1 ] );
 	}
 
 	public function testGenerateUrlDataMapCorrectlyHandlesRegularRoute(): void
@@ -57,10 +113,8 @@ class RouteProcessorTest extends TestCase
 		$parsedRoute = $this->matcher->generateUrlDataMap( [ 'home' ] );
 		$segment     = $parsedRoute[ 0 ];
 
-		$this->assertArrayHasKey( 'param', $segment );
-		$this->assertArrayHasKey( 'path', $segment );
-		$this->assertFalse( $segment[ 'param' ] );
-		$this->assertEquals( 'home', $segment[ 'path' ] );
+		$this->assertFalse( $segment->isParam() );
+		$this->assertEquals( 'home', $segment->getPath() );
 	}
 
 	// validateUrlParameterTypes
@@ -146,4 +200,8 @@ class RouteProcessorTest extends TestCase
 		$this->assertFalse( $this->matcher->isUrlParameter( 'routeparam' ) );
 	}
 
+	public function testIsUrlParameterReturnsFalseIfStringEmpty(): void
+	{
+		$this->assertFalse( $this->matcher->isUrlParameter( '' ) );
+	}
 }

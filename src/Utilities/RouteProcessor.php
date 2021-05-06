@@ -2,6 +2,9 @@
 
 namespace Crossview\Exphpress\Utilities;
 
+use Crossview\Exphpress\Http\Request;
+use Crossview\Exphpress\Routing\Route;
+use Crossview\Exphpress\Routing\RouteSegmentData;
 use \InvalidArgumentException;
 
 class RouteProcessor
@@ -13,6 +16,71 @@ class RouteProcessor
 		'int'
 	];
 
+	/**
+	 * Determines if a Request matches a Route
+	 *
+	 * .
+	 *
+	 * If The current portion of the $route is a parameter, and the corresponding portion of the $uri is a non-empty value, it may be a match.
+	 *
+	 * If all other 1:1 tests have not returned or continued, and the current portions don't match, then the $route and $uri don't match.
+	 *
+	 * @param Route   $route   The Route to test
+	 * @param Request $request The Request to test against
+	 *
+	 * @return array|bool Returns an array containing any parameters matched by the URI. If no parameters were matched but the URI and Route match, the array will be empty. If the URI and Route don't match, returns false.
+	 */
+	public function routeMatches( Route $route, Request $request ): bool
+	{
+		$parsedRoute = $route->getParsedRoute();
+		$parsedUrl   = $request->getParsedPath();
+		$routeLength = count( $parsedRoute );
+		$urlLength   = count( $parsedUrl );
+
+		// If the Route length has more elements than the requested URL, there is no match
+		if ( $routeLength > $urlLength )
+		{
+			return false;
+		}
+
+		// If the requested URL has more elements than the Route and the last element of the Route is NOT an asterisk (*), there is no match
+		if ( $urlLength > $routeLength && $parsedRoute[ $routeLength - 1 ]->getPath() !== "*" )
+		{
+			return false;
+		}
+
+		for ( $i = 0; $i < $routeLength; $i++ )
+		{
+			$current = $parsedRoute[ $i ];
+			// If the current Route segment is an asterisk (*) then it automatically matches the rest of the URL
+			if ( $current->getPath() === "*" )
+			{
+				return true;
+			}
+
+			if ( $current->isParam() )
+			{
+				// TODO: match the parameters instead of just assuming they might match
+				continue;
+			}
+
+			// if all other tests have not returned or continued, and the current portions don't match, the route and uri don't match
+			if ( $current->getPath() !== $parsedUrl[ $i ] )
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Generates the data mapping for a Route's URL
+	 *
+	 * @param array $url The Route's processed path
+	 *
+	 * @return RouteSegmentData[]
+	 */
 	public function generateUrlDataMap( array $url ): array
 	{
 		$routes = [];
@@ -20,16 +88,15 @@ class RouteProcessor
 		for ( $i = 0; $i < count( $url ); $i++ )
 		{
 			$segment = $url[ $i ];
-			$data    = [];
+			$data    = new RouteSegmentData();
 			if ( $this->isUrlParameter( $segment ) )
 			{
-				$data[ 'param' ] = true;
-				$data[ 'path' ]  = $this->parseUrlParameterName( $segment );
-				$data[ 'type' ]  = $this->parseUrlParameterTypes( $segment );
+				$data->setParam( true );
+				$data->setPath( $this->parseUrlParameterName( $segment ) );
+				$data->setTypes( $this->parseUrlParameterTypes( $segment ) );
 			} else
 			{
-				$data[ 'param' ] = false;
-				$data[ 'path' ]  = $segment;
+				$data->setPath( $segment );
 			}
 
 			$routes[] = $data;
@@ -108,6 +175,11 @@ class RouteProcessor
 	 */
 	public function isUrlParameter( string $parameter ): bool
 	{
+		if ( strlen( $parameter ) === 0 )
+		{
+			return false;
+		}
+
 		return $parameter[ 0 ] === ':';
 	}
 }

@@ -26,7 +26,7 @@ class Route
 	/**
 	 * Getter for Route::$parsedRoute
 	 *
-	 * @return array
+	 * @return RouteSegmentData[]
 	 */
 	public function getParsedRoute(): array
 	{
