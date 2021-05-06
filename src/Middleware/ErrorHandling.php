@@ -16,18 +16,20 @@ class ErrorHandling implements Middleware
 	 */
 	public function handle( Request $request, Response $response, Closure $next )
 	{
-		// TODO: This needs to not send
-		try {
+		// TODO: Update App to have a Closure $errorHandler on it, and simply call that here. Then default the App::$errorHandler to this code, or something substantially similar
+		try
+		{
 			$next();
-		} catch(Exception $e) {
+		} catch ( Exception $e )
+		{
 			ob_clean();
 			$error = [
 				'message' => $e->getMessage(),
-				'trace' => $e->getTraceAsString(),
-				'code' => $e->getCode()
+				'trace'   => $e->getTraceAsString(),
+				'code'    => $e->getCode()
 			];
-			$response->status(500)
-				->send(json_encode($error));
+			$response->status( 500 )
+					 ->send( json_encode( $error ) );
 		}
 	}
 }
