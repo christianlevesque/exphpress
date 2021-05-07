@@ -4,7 +4,6 @@ namespace Crossview\Exphpress\Middleware;
 
 use Closure;
 use Exception;
-use Crossview\Exphpress\Exceptions\ExphpressException;
 use Crossview\Exphpress\Http\Request;
 use Crossview\Exphpress\Http\Response;
 
