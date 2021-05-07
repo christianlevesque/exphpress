@@ -5,25 +5,25 @@ namespace Middleware;
 use Exception;
 use Crossview\Exphpress\Http\Request;
 use Crossview\Exphpress\Http\Response;
-use Crossview\Exphpress\Middleware\ErrorHandling;
+use Crossview\Exphpress\Middleware\ErrorHandler;
 use PHPUnit\Framework\TestCase;
 
-class ErrorHandlingTest extends TestCase
+class ErrorHandlerTest extends TestCase
 {
-	private ErrorHandling $handler;
-	private Request       $request;
-	private Response      $response;
+	private ErrorHandler $handler;
+	private Request      $request;
+	private Response     $response;
 
 	protected function setUp(): void
 	{
-		$this->handler  = new ErrorHandling();
+		$this->handler  = new ErrorHandler();
 		$this->request  = $this->createStub( Request::class );
 		$this->response = $this->createMock( Response::class );
 	}
 
 	public function testCanBeCreated(): void
 	{
-		$this->assertInstanceOf( ErrorHandling::class, $this->handler );
+		$this->assertInstanceOf( ErrorHandler::class, $this->handler );
 	}
 
 	public function testDoesNothingIfNoErrors(): void

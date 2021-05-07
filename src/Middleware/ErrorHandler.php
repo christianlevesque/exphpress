@@ -8,7 +8,7 @@ use Crossview\Exphpress\Exceptions\ExphpressException;
 use Crossview\Exphpress\Http\Request;
 use Crossview\Exphpress\Http\Response;
 
-class ErrorHandling implements Middleware
+class ErrorHandler implements Middleware
 {
 
 	/**
