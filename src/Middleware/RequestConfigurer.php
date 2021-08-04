@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Crossview\Exphpress\Middleware;
-
 
 use Closure;
 use Crossview\Exphpress\Http\Request;
@@ -12,6 +10,29 @@ use Crossview\Exphpress\Providers\WritableArrayValueProvider;
 
 class RequestConfigurer implements Middleware
 {
+	protected string $input;
+
+	/**
+	 * @return mixed|string
+	 */
+	public function getInput(): string
+	{
+		return $this->input;
+	}
+
+	/**
+	 * @param mixed|string $input
+	 */
+	public function setInput( string $input ): void
+	{
+		$this->input = $input;
+	}
+
+	public function __construct($input = '')
+	{
+		$this->input = $input;
+	}
+
 	public function handle( Request $request, Response $response, Closure $next )
 	{
 		$this->configureProviders( $request )
@@ -27,7 +48,15 @@ class RequestConfigurer implements Middleware
 
 		// Regardless of the HTTP method, $_GET always contains URL query parameters
 		$request->setQueryParameterProvider( new WritableArrayValueProvider( $_GET ) );
-		$request->setRequestParameterProvider( new WritableArrayValueProvider( [] ) );
+
+		// Determine what type of input we have and parse it
+		if ( $request->getServerParameter( 'CONTENT_TYPE' ) === 'application/json' )
+		{
+			$this->processAsJson( $request, $this->input );
+		} else
+		{
+			$this->processAsKvp( $request, $this->input );
+		}
 
 		return $this;
 	}
@@ -37,6 +66,28 @@ class RequestConfigurer implements Middleware
 		$request->setOriginalUrl( $request->getServerParameter( 'REQUEST_URI' ) );
 		$path = explode( '?', $request->getOriginalUrl() )[ 0 ];
 		$request->setPath( $path );
+
+		return $this;
+	}
+
+	protected function processAsJson( Request $request, string $input ): RequestConfigurer
+	{
+		$parsed = json_decode( $input, true, $flags = JSON_THROW_ON_ERROR ) ?? [];
+		$request->setRequestParameterProvider( new WritableArrayValueProvider( $parsed ) );
+
+		return $this;
+	}
+
+	protected function processAsKvp( Request $request, string $input ): RequestConfigurer
+	{
+		parse_str( $input, $parsed );
+
+		if ( !empty( $_FILES ) )
+		{
+			$parsed = array_merge( $parsed, $_FILES );
+		}
+
+		$request->setRequestParameterProvider( new WritableArrayValueProvider( $parsed ) );
 
 		return $this;
 	}

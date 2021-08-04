@@ -17,14 +17,11 @@ class RequestConfigurerTest extends TestCase
 
 	protected function setUp(): void
 	{
-		$this->middleware = new RequestConfigurer();
+		$this->middleware = new RequestConfigurer( '{"someKey":"This is a key"}' );
 		$this->request    = $this->createMock( Request::class );
 		$this->response   = $this->createStub( Response::class );
 
 		$this->request->method( 'getOriginalUrl' )
-					  ->willReturn( '/' );
-		$this->request->method( 'getServerParameter' )
-					  ->with( 'REQUEST_URI' )
 					  ->willReturn( '/' );
 	}
 
@@ -35,6 +32,17 @@ class RequestConfigurerTest extends TestCase
 
 	public function testCallsConfigureProviders(): void
 	{
+		$this->request->method( 'getServerParameter' )
+					  ->will( $this->returnValueMap( [
+						  [
+							  'REQUEST_URI',
+							  '/'
+						  ],
+						  [
+							  'CONTENT_TYPE',
+							  'application/json'
+						  ]
+					  ] ) );
 		$this->request->expects( $this->once() )
 					  ->method( 'setServerProvider' )
 					  ->with( $this->isInstanceOf( ArrayValueProvider::class ) );
@@ -55,6 +63,17 @@ class RequestConfigurerTest extends TestCase
 
 	public function testCallsConfigureUrl(): void
 	{
+		$this->request->method( 'getServerParameter' )
+					  ->will( $this->returnValueMap( [
+						  [
+							  'REQUEST_URI',
+							  '/'
+						  ],
+						  [
+							  'CONTENT_TYPE',
+							  'application/json'
+						  ]
+					  ] ) );
 		$this->request->expects( $this->once() )
 					  ->method( 'setOriginalUrl' )
 					  ->with( '/' );
@@ -70,12 +89,50 @@ class RequestConfigurerTest extends TestCase
 	public function testCallsNextMiddleware(): void
 	{
 		$output = 'Some output should probably go here';
-
+		$this->request->method( 'getServerParameter' )
+					  ->will( $this->returnValueMap( [
+						  [
+							  'REQUEST_URI',
+							  '/'
+						  ],
+						  [
+							  'CONTENT_TYPE',
+							  'application/json'
+						  ]
+					  ] ) );
 		ob_start();
 		$this->middleware->handle( $this->request, $this->response, function () use ( $output )
 		{
 			echo $output;
 		} );
 		$this->assertEquals( $output, ob_get_clean() );
+	}
+
+	// processAsJson
+	public function testAddsJson(): void
+	{
+		$this->request->method( 'getServerParameter' )
+					  ->will( $this->returnValueMap( [
+						  [
+							  'REQUEST_URI',
+							  '/'
+						  ],
+						  [
+							  'CONTENT_TYPE',
+							  'application/json'
+						  ]
+					  ] ) );
+		$this->request->expects( $this->once() )
+					  ->method( 'setRequestParameterProvider' )
+					  ->with( $this->callback( function ( $arg )
+					  {
+						  return $arg instanceof WritableArrayValueProvider
+							  && $arg->get( 'someKey' ) === 'This is a key';
+					  } )
+					  );
+
+		$this->middleware->handle( $this->request, $this->response, function ()
+		{
+		} );
 	}
 }
