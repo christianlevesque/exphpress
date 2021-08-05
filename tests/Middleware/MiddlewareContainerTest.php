@@ -58,8 +58,8 @@ class MiddlewareContainerTest extends TestCase
 	public function testExecuteExecutesPipeline(): void
 	{
 		$this->response->expects( $this->once() )
-						->method( 'send' )
-						->with( "I'm done!" );
+					   ->method( 'send' )
+					   ->with( "I'm done!" );
 
 		$container = new MiddlewareContainer( $this->request, $this->response );
 		$container->register( new TestImpl() );
@@ -75,6 +75,23 @@ class MiddlewareContainerTest extends TestCase
 		$container = new MiddlewareContainer( $this->request, $this->response );
 		$container->execute();
 	}
+
+	public function testExecuteQueuesNextMiddleware(): void
+	{
+
+		$container = new MiddlewareContainer( $this->request, $this->response );
+		$container->register( new TestImpl() );
+		$container->register( new TestImpl2() );
+
+		$this->response->expects( $this->exactly( 2 ) )
+					   ->method( 'send' )
+					   ->withConsecutive(
+						   [ "I'm done!" ],
+						   [ "I'm done again!" ]
+					   );
+
+		$container->execute();
+	}
 }
 
 class TestImpl implements Middleware
@@ -82,5 +99,16 @@ class TestImpl implements Middleware
 	public function handle( Request $request, Response $response, Closure $next )
 	{
 		$response->send( "I'm done!" );
+		$next();
 	}
+}
+
+class TestImpl2 implements Middleware
+{
+	public function handle( Request $request, Response $response, Closure $next )
+	{
+		$response->send( "I'm done again!" );
+		$next();
+	}
+
 }
