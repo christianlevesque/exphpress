@@ -50,9 +50,6 @@ class ErrorHandlerTest extends TestCase
 					   ->method( 'status' )
 					   ->with( 500 )
 					   ->willReturn( $this->response );
-		$this->response->expects( $this->once() )
-					   ->method( 'send' )
-					   ->withAnyParameters();
 
 		$this->handler->handle( $this->request, $this->response, function ()
 		{

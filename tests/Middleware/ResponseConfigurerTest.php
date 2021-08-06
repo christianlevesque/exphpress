@@ -39,4 +39,16 @@ class ResponseConfigurerTest extends TestCase
 		$this->middleware->handle($this->request, $this->response, function() {
 		});
 	}
+
+	public function testCallsNextMiddleware(): void
+	{
+		$output = 'This is some great output!';
+
+		ob_start();
+		$this->middleware->handle( $this->request, $this->response, function () use ( $output )
+		{
+			echo $output;
+		} );
+		$this->assertEquals( $output, ob_get_clean() );
+	}
 }

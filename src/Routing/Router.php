@@ -22,14 +22,14 @@ class Router
 		return $this->routes;
 	}
 
-	protected Route $matchedRoute;
+	protected ?Route $matchedRoute = null;
 
 	/**
 	 * Getter for the current matched Route
 	 *
 	 * @return Route|null Returns the Route matching the current request's URI, or null if no Route has been matched
 	 */
-	public function getMatchedRoute(): Route
+	public function getMatchedRoute(): ?Route
 	{
 		return $this->matchedRoute;
 	}

@@ -9,17 +9,14 @@ use Crossview\Exphpress\Http\Response;
 
 class ErrorHandler implements Middleware
 {
-
 	/**
 	 * @inheritDoc
 	 */
 	public function handle( Request $request, Response $response, Closure $next )
 	{
-		try
-		{
+		try {
 			$next();
-		} catch ( Exception $e )
-		{
+		} catch ( Exception $e ) {
 			ob_clean();
 			$error = [
 				'message' => $e->getMessage(),
@@ -27,7 +24,8 @@ class ErrorHandler implements Middleware
 				'code'    => $e->getCode()
 			];
 			$response->status( 500 )
-					 ->send( json_encode( $error ) );
+					 ->setHeader( 'Content-Type', 'application/json' )
+					 ->setResponseBody( json_encode( $error ) );
 		}
 	}
 }

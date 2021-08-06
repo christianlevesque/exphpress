@@ -15,6 +15,7 @@ class OutputBuffer implements Middleware
 	{
 		ob_start();
 		$next();
+		$response->send();
 		ob_flush();
 	}
 }

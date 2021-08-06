@@ -13,6 +13,7 @@ class ResponseConfigurer implements Middleware
 	public function handle( Request $request, Response $response, Closure $next )
 	{
 		$this->configureProviders( $response );
+		$next();
 	}
 
 	protected function configureProviders( Response $response ): ResponseConfigurer
