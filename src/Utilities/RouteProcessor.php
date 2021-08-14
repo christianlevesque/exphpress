@@ -18,6 +18,8 @@ class RouteProcessor
 	/**
 	 * Determines if a Request matches a Route
 	 *
+	 * This method only determines if the Request matches the path data supplied to a given Route - it does NOT determine if there is an appropriate handler for the current request method. That logic is contained within Route::execute.
+	 *
 	 * @param Route   $route   The Route to test
 	 * @param Request $request The Request to test against
 	 *

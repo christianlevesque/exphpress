@@ -13,6 +13,7 @@ class RequestTest extends TestCase
 	private const PATH         = '/default/path';
 	private Request                    $request;
 	private ArrayValueProvider         $serverProvider;
+	private ArrayValueProvider         $fileProvider;
 	private ArrayValueProvider         $cookieProvider;
 	private WritableArrayValueProvider $queryParameterProvider;
 	private WritableArrayValueProvider $requestParameterProvider;
@@ -21,10 +22,12 @@ class RequestTest extends TestCase
 	{
 		$this->request                  = new Request();
 		$this->serverProvider           = $this->createMock( ArrayValueProvider::class );
+		$this->fileProvider             = $this->createMock( ArrayValueProvider::class );
 		$this->cookieProvider           = $this->createMock( ArrayValueProvider::class );
 		$this->queryParameterProvider   = $this->createMock( WritableArrayValueProvider::class );
 		$this->requestParameterProvider = $this->createMock( WritableArrayValueProvider::class );
 		$this->request->setServerProvider( $this->serverProvider )
+					  ->setFileProvider( $this->fileProvider )
 					  ->setCookieProvider( $this->cookieProvider )
 					  ->setQueryParameterProvider( $this->queryParameterProvider )
 					  ->setRequestParameterProvider( $this->requestParameterProvider )
@@ -56,6 +59,26 @@ class RequestTest extends TestCase
 	{
 		$this->expectErrorMessage( 'You are attempting to set the Request ServerProvider, but a ServerProvider has already been configured.' );
 		$this->request->setServerProvider( new ArrayValueProvider( [] ) );
+	}
+
+	// getFileProvider
+	public function testGetFileProviderReturnsFileProviderIfExists(): void
+	{
+		$this->assertInstanceOf( ArrayValueProvider::class, $this->request->getFileProvider() );
+	}
+
+	public function testGetFileProviderThrowsIfNotExists(): void
+	{
+		$this->expectErrorMessage( 'You are attempting to access the Request FileProvider, but none has been configured.' );
+		$request = new Request();
+		$request->getFileProvider();
+	}
+
+	// setFileProvider
+	public function testSetFileProviderThrowsIfAlreadyExists(): void
+	{
+		$this->expectErrorMessage( 'You are attempting to set the Request FileProvider, but a FileProvider has already been configured.' );
+		$this->request->setFileProvider( new ArrayValueProvider( [] ) );
 	}
 
 	// getQueryParameterProvider

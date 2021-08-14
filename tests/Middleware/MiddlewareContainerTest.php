@@ -5,19 +5,21 @@ namespace Middleware;
 use Closure;
 use Crossview\Exphpress\Http\Request;
 use Crossview\Exphpress\Http\Response;
-use Crossview\Exphpress\Middleware\MiddlewareContainer;
 use Crossview\Exphpress\Middleware\Middleware;
+use Crossview\Exphpress\Middleware\MiddlewareContainer;
 use PHPUnit\Framework\TestCase;
 
 class MiddlewareContainerTest extends TestCase
 {
 	private MiddlewareContainer $container;
+	private Request             $request;
+	private Response            $response;
 
 	protected function setUp(): void
 	{
-		$request         = $this->createStub( Request::class );
-		$response        = $this->createStub( Response::class );
-		$this->container = new MiddlewareContainer( $request, $response );
+		$this->request   = $this->createStub( Request::class );
+		$this->response  = $this->createStub( Response::class );
+		$this->container = new MiddlewareContainer( $this->request, $this->response );
 	}
 
 	public function testCanBeCreated(): void
@@ -55,26 +57,39 @@ class MiddlewareContainerTest extends TestCase
 
 	public function testExecuteExecutesPipeline(): void
 	{
-		$request  = $this->createStub( Request::class );
-		$response = $this->createMock( Response::class );
-		$response->expects( $this->once() )
-				 ->method( 'send' )
-				 ->with( "I'm done!" );
+		$this->response->expects( $this->once() )
+					   ->method( 'send' )
+					   ->with( "I'm done!" );
 
-		$container = new MiddlewareContainer( $request, $response );
+		$container = new MiddlewareContainer( $this->request, $this->response );
 		$container->register( new TestImpl() );
 		$container->execute();
 	}
 
 	public function testExecuteDoesNothingIfNoPipeline(): void
 	{
-		$request  = $this->createStub( Request::class );
-		$response = $this->createMock( Response::class );
-		$response->expects( $this->never() )
-				 ->method( 'send' )
-				 ->withAnyParameters();
+		$this->response->expects( $this->never() )
+					   ->method( 'send' )
+					   ->withAnyParameters();
 
-		$container = new MiddlewareContainer( $request, $response );
+		$container = new MiddlewareContainer( $this->request, $this->response );
+		$container->execute();
+	}
+
+	public function testExecuteQueuesNextMiddleware(): void
+	{
+
+		$container = new MiddlewareContainer( $this->request, $this->response );
+		$container->register( new TestImpl() );
+		$container->register( new TestImpl2() );
+
+		$this->response->expects( $this->exactly( 2 ) )
+					   ->method( 'send' )
+					   ->withConsecutive(
+						   [ "I'm done!" ],
+						   [ "I'm done again!" ]
+					   );
+
 		$container->execute();
 	}
 }
@@ -84,5 +99,16 @@ class TestImpl implements Middleware
 	public function handle( Request $request, Response $response, Closure $next )
 	{
 		$response->send( "I'm done!" );
+		$next();
 	}
+}
+
+class TestImpl2 implements Middleware
+{
+	public function handle( Request $request, Response $response, Closure $next )
+	{
+		$response->send( "I'm done again!" );
+		$next();
+	}
+
 }

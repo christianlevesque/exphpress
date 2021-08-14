@@ -52,6 +52,46 @@ class Request
 	}
 
 	/**
+	 * @var ReadableProvider Represents the $_FILES array
+	 */
+	protected ReadableProvider $fileProvider;
+
+	/**
+	 * Gets the File Provider
+	 *
+	 * @return ReadableProvider
+	 */
+	public function getFileProvider(): ReadableProvider
+	{
+		if ( !isset( $this->fileProvider ) )
+		{
+			throw new ExphpressException( 'You are attempting to access the Request FileProvider, but none has been configured.' );
+		}
+
+		return $this->fileProvider;
+	}
+
+	/**
+	 * Sets the File Provider
+	 *
+	 * This method only sets the File Provider if it has not already been set. Exphpress-provided middleware calls this method, so there's no reason for developers to call it.
+	 *
+	 * @param ReadableProvider $provider
+	 *
+	 * @return $this
+	 */
+	public function setFileProvider( ReadableProvider $provider ): Request
+	{
+		if ( isset( $this->fileProvider ) )
+		{
+			throw new ExphpressException( 'You are attempting to set the Request FileProvider, but a FileProvider has already been configured.' );
+		}
+
+		$this->fileProvider = $provider;
+		return $this;
+	}
+
+	/**
 	 * @var ReadableProvider Represents the $_COOKIE array
 	 */
 	protected ReadableProvider $cookieProvider;
